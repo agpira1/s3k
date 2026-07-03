@@ -3,6 +3,14 @@
 #include <stdio.h>
 
 extern char __uart_base[]; // UART base address.
+extern char __payload[];   // First address after the app's reserved RAM window.
+
+#define REGION_SIZE 0x10000
+
+static s3k_word_t align_up(s3k_word_t addr, s3k_word_t align)
+{
+	return (addr + align - 1) & ~(align - 1);
+}
 
 static void setup_uart(int idx)
 {
@@ -68,8 +76,8 @@ int main(void)
 	dump_memory_cap(S3K_BOOT_MEM_UART_IDX);
 
 	// RAM configuration
-	s3k_word_t ram_base = 0x80000000 + 0x1000000;
-	s3k_word_t ram_size = 0x10000;
+	s3k_word_t ram_size = REGION_SIZE;
+	s3k_word_t ram_base = align_up((s3k_word_t)__payload, ram_size);
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 2; // size
 	s3k_word_t ram_slot = 3; // pmp slot
