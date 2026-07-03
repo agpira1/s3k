@@ -6,6 +6,7 @@ endforeach
 gdb_riscv64 = find_program('riscv64-unknown-elf-gdb', required: false)
 tutorial_gdb_run_command = [
   gdb_riscv64,
+  '-ex', 'set confirm off',
   '-ex', 'target remote 127.0.0.1:3333',
   '-ex', 'add-symbol-file ' + s3k_elf.full_path(),
 ]
