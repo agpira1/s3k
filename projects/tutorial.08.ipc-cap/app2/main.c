@@ -2,6 +2,15 @@
 
 #include <stdio.h>
 
+#define REGION_SIZE 0x10000
+
+extern char __payload[]; // First address after the app's reserved RAM window.
+
+static s3k_word_t align_up(s3k_word_t addr, s3k_word_t align)
+{
+	return (addr + align - 1) & ~(align - 1);
+}
+
 // Read the current cycle counter using the RISC-V rdcycle instruction
 uint64_t rdcycle(void)
 {
@@ -28,8 +37,8 @@ int main(s3k_word_t server)
 		// Record cycle count before receiving
 		s3k_ipc_replyrecv(server, &msg);
 
-		s3k_word_t ram_base = 0x80000000 + 0x1000000;
-		s3k_word_t ram_size = 0x10000;
+		s3k_word_t ram_size = REGION_SIZE;
+		s3k_word_t ram_base = align_up((s3k_word_t)__payload, ram_size);
 		s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 		printf("App2: Received cap %d\n", msg.capidx);
 		s3k_word_t napot_addr = s3k_pmp_napot_encode(ram_base, ram_size);

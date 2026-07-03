@@ -5,8 +5,15 @@
 extern void app2_init(void); // Function to initialize app2 (the server application)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#define REGION_SIZE 0x10000
 
 extern char __uart_base[]; // UART base address, provided by the linker
+extern char __payload[];   // First address after the app's reserved RAM window.
+
+static s3k_word_t align_up(s3k_word_t addr, s3k_word_t align)
+{
+	return (addr + align - 1) & ~(align - 1);
+}
 
 // Read the current cycle counter using the RISC-V rdcycle instruction
 uint64_t rdcycle(void)
@@ -27,8 +34,8 @@ void run_test(int client, int buffer_cap, uint64_t res[3])
 
 	// Measure the cost of a single IPC call and replyrecv
 	// RAM configuration
-	s3k_word_t ram_base = 0x80000000 + 0x1000000;
-	s3k_word_t ram_size = 0x10000;
+	s3k_word_t ram_size = REGION_SIZE;
+	s3k_word_t ram_base = align_up((s3k_word_t)__payload, ram_size);
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 1; // size
 	s3k_word_t ram_slot = 3; // pmp slot
@@ -107,8 +114,8 @@ int main(void)
 	s3k_capty_t capty = 0;
 	s3k_index_t j = 0;
 
-	s3k_word_t ram_base = 0x80000000 + 0x1000000;
-	s3k_word_t ram_size = 0x10000;
+	s3k_word_t ram_size = REGION_SIZE;
+	s3k_word_t ram_base = align_up((s3k_word_t)__payload, ram_size);
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 2; // size
 	s3k_word_t buffer_cap = s3k_mem_derive(0, ram_fuel, ram_perm, ram_base, ram_size);

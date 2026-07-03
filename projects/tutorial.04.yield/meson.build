@@ -1,4 +1,4 @@
-project('tutorial.04.timing_cap', 'c',
+project('tutorial.04.yield', 'c',
 	version: '0.1',
 	meson_version: '>=1.1.0',
 	default_options: [

@@ -48,7 +48,7 @@ void mem_init(s3k_word_t mon_idx, s3k_word_t idx, s3k_word_t slot, s3k_word_t cf
 void app2_init(void)
 {
 	int mon_idx = 8;   // Monitor index
-	int ram_idx = 0;   // RAM index
+	int ram_idx = S3K_BOOT_MEM_RAM_IDX;   // RAM index
 	int uart_idx = S3K_BOOT_MEM_UART_IDX; // UART index
 
 	// RAM configuration
