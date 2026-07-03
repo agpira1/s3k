@@ -39,10 +39,10 @@ void kernel_init(void)
 	lock_init();
 	proc_init(RAM_BASE);
 
-	mem_pmp_set((pid_t)1, BOOT_MEM_RAM_IDX, (pmp_slot_t)1, RAM_PERM, pmp_napot_encode(RAM_BASE, RAM_SIZE));
-	mem_pmp_set((pid_t)1, BOOT_MEM_UART_IDX, (pmp_slot_t)2, UART_PERM,
+	mem_pmp_set((pid_t)1, S3K_BOOT_MEM_RAM_IDX, (pmp_slot_t)1, RAM_PERM, pmp_napot_encode(RAM_BASE, RAM_SIZE));
+	mem_pmp_set((pid_t)1, S3K_BOOT_MEM_UART_IDX, (pmp_slot_t)2, UART_PERM,
 		    pmp_napot_encode(UART_BASE, UART_SIZE));
-	mem_pmp_set((pid_t)1, BOOT_MEM_SPM_IDX, (pmp_slot_t)3, SPM_PERM,
+	mem_pmp_set((pid_t)1, S3K_BOOT_MEM_SPM_IDX, (pmp_slot_t)3, SPM_PERM,
 		    pmp_napot_encode(SPM_BASE, SPM_SIZE));
 }
 
