@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "app2_layout.h"
+
 extern char __uart_base[]; // UART base address.
 
 static void setup_uart(int idx)
@@ -52,8 +54,8 @@ void app2_init(void)
 	int uart_idx = S3K_BOOT_MEM_UART_IDX; // UART index
 
 	// RAM configuration
-	s3k_word_t ram_base = 0x80020000;
-	s3k_word_t ram_size = 0x10000;
+	s3k_word_t ram_base = APP2_RAM_ORIGIN;
+	s3k_word_t ram_size = APP2_RAM_SIZE;
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 1;
 	s3k_word_t ram_slot = 1;

@@ -10,7 +10,7 @@ app2_elf = executable(
 	link_args: [
 		'-nostartfiles',
 		'-specs=picolibc.specs',
-		'-T', app2_platform_ld,
+		'-T', meson.current_build_dir() / 'platform' / 'app2.ld',
 	],
 	dependencies: [
 		libs3k_dep,

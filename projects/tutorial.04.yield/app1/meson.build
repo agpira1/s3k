@@ -6,6 +6,9 @@ app1_elf = executable(
 		'head.S',
 		'main.c',
 	) + app1_platform_uart,
+	include_directories: [
+		app2_layout_inc,
+	],
 	c_args: tutorial_app_c_args,
 	link_args: [
 		'-nostartfiles',

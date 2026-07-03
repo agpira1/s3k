@@ -4,7 +4,7 @@ ENTRY(_start)
 __uart_base  = 0x10000000;
 
 MEMORY {
-    RAM (rwx) : ORIGIN = 0x80020000, LENGTH = 64K
+    RAM (rwx) : ORIGIN = @APP2_RAM_ORIGIN@, LENGTH = @APP2_RAM_LENGTH@
 }
 
 SECTIONS {
