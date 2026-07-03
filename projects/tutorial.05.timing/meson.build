@@ -15,12 +15,6 @@ subdir('app1')
 subdir('app2')
 
 tutorial_app_elves = [app1_elf, app2_elf]
-tutorial_gdb_commands = [
-	'-ex', 'target remote 127.0.0.1:3333',
-	'-ex', 'add-symbol-file ' + app1_elf.full_path(),
-	'-ex', 'add-symbol-file ' + app2_elf.full_path(),
-	'-ex', 'add-symbol-file ' + s3k_elf.full_path(),
-]
 tutorial_qemu_extra_args = ['-smp', '2']
 tutorial_qemu_loader_cpus = [0, 1]
 tutorial_qemu_debug_extra_args = []

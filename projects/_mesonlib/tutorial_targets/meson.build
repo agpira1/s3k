@@ -13,6 +13,9 @@ tutorial_gdb_run_command = [
 foreach elf : tutorial_app_elves
   tutorial_gdb_run_command += ['-ex', 'add-symbol-file ' + elf.full_path()]
 endforeach
+if is_variable('tutorial_gdb_commands')
+  tutorial_gdb_run_command = [gdb_riscv64] + tutorial_gdb_commands
+endif
 
 run_target(
   'gdb-run',
