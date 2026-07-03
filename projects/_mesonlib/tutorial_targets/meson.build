@@ -4,9 +4,18 @@ foreach elf : tutorial_app_elves
 endforeach
 
 gdb_riscv64 = find_program('riscv64-unknown-elf-gdb', required: false)
+tutorial_gdb_run_command = [
+  gdb_riscv64,
+  '-ex', 'target remote 127.0.0.1:3333',
+  '-ex', 'add-symbol-file ' + s3k_elf.full_path(),
+]
+foreach elf : tutorial_app_elves
+  tutorial_gdb_run_command += ['-ex', 'add-symbol-file ' + elf.full_path()]
+endforeach
+
 run_target(
   'gdb-run',
-  command: [gdb_riscv64] + tutorial_gdb_commands,
+  command: tutorial_gdb_run_command,
   depends: tutorial_target_deps,
 )
 
