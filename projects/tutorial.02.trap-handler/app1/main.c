@@ -45,5 +45,5 @@ void setup_trap(void (*trap_handler)(void), void * trap_stack_base, uint64_t tra
 int main(void)
 {
 	setup_trap(trap_handler, trap_stack, 1024);
-	puts("Hello world from app2!");
+	puts("Hello world from app1!");
 }
