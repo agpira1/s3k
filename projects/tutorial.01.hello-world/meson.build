@@ -11,6 +11,7 @@ s3k = subproject('s3k')
 libs3k_dep = s3k.get_variable('lib_dep')
 s3k_elf = s3k.get_variable('elf')
 
+subdir('subprojects/s3k/projects/_mesonlib/tutorial_options')
 subdir('app1')
 
 tutorial_app_elves = [app1_elf]

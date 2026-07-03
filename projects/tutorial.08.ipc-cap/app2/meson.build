@@ -5,10 +5,7 @@ app2_elf = executable(
 		'head.S',
 		'main.c',
 	) + app2_platform_uart,
-	c_args: [
-		'-specs=picolibc.specs',
-		'-DUART_REG_STRIDE=' + get_option('uart_stride'),
-	],
+	c_args: tutorial_app_c_args,
 	link_args: [
 		'-nostartfiles',
 		'-specs=picolibc.specs',

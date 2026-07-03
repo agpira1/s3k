@@ -6,13 +6,7 @@ app1_elf = executable(
 		'head.S',
 		'main.c',
 	) + app1_platform_uart,
-	c_args: [
-		'-specs=picolibc.specs',
-		'-DUART_REG_STRIDE=' + get_option('uart_stride'),
-		'-DMAX_MEMORY_FUEL=' + get_option('nmemoryfuel').to_string(),
-		'-DMAX_TIME_FUEL=' + get_option('ntimefuel').to_string(),
-        '-DMAX_TIME_SLOT=' + get_option('ntimeslot').to_string(),
-	],
+	c_args: tutorial_app_c_args,
 	link_args: [
 		'-nostartfiles',
 		'-specs=picolibc.specs',
