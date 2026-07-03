@@ -35,7 +35,7 @@ void kernel_init(void)
 	lock_init();
 	proc_init(RAM_BASE);
 
-	mem_pmp_set((pid_t)1, (index_t)0, (pmp_slot_t)1, RAM_PERM, pmp_napot_encode(RAM_BASE, BOOT_RAM_SIZE));
+	mem_pmp_set((pid_t)1, BOOT_MEM_RAM_IDX, (pmp_slot_t)1, RAM_PERM, pmp_napot_encode(RAM_BASE, BOOT_RAM_SIZE));
 }
 
 void temporal_fence(void)

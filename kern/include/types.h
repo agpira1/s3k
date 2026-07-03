@@ -4,6 +4,7 @@
 #include <stdbool.h> ///< For boolean type.
 #include <stddef.h>  ///< For size_t definition.
 #include <stdint.h>  ///< For standard integer types.
+#include "s3k/boot.h"
 
 // Machine word-sized integer types.
 typedef unsigned long word_t; ///< Unsigned machine word-sized integer.

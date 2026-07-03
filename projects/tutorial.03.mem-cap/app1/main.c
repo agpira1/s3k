@@ -61,11 +61,11 @@ static void dump_memory_cap(int idx)
 int main(void)
 {
 	setup_trap(trap_handler, trap_stack, 1024);
-	setup_uart(MAX_MEMORY_FUEL);
+	setup_uart(S3K_BOOT_MEM_UART_IDX);
 	printf("Hello, world\n");
 
 	dump_memory_cap(0);
-	dump_memory_cap(MAX_MEMORY_FUEL);
+	dump_memory_cap(S3K_BOOT_MEM_UART_IDX);
 
 	// RAM configuration
 	s3k_word_t ram_base = 0x80000000 + 0x1000000;

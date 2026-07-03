@@ -17,6 +17,6 @@ void setup_uart(int idx) {
 }
 int main(void)
 {
-    setup_uart(MAX_MEMORY_FUEL);
+    setup_uart(S3K_BOOT_MEM_UART_IDX);
 	printf("hello, world\n");
 }

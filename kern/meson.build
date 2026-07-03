@@ -18,7 +18,7 @@ sources = files(
     'src/ttas.c',
 )
 
-incdir = include_directories('include')
+incdir = include_directories('include', '../lib/include')
 
 # System configuration arguments
 c_args = [

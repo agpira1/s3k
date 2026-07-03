@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "s3k/boot.h"
 
 typedef unsigned long s3k_word_t; // Unsigned machine word-sized integer.
 

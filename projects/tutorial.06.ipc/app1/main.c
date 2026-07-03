@@ -23,7 +23,7 @@ void setup_uart(int idx) {
 #define PROC_STATE_BLOCKED 2
 int main(void)
 {
-	setup_uart(MAX_MEMORY_FUEL);
+	setup_uart(S3K_BOOT_MEM_UART_IDX);
 	s3k_sync();
 	printf("IPC Application \n");
 	app2_init(); // Initialize the server application

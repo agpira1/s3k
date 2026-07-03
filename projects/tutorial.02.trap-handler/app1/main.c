@@ -22,7 +22,7 @@ static s3k_word_t trap_stack[1024] __attribute__((aligned(16)));
 static void trap_handler(void) __attribute__((interrupt("machine")));
 static void trap_handler(void)
 {
-	setup_uart(MAX_MEMORY_FUEL);
+	setup_uart(S3K_BOOT_MEM_UART_IDX);
 
 	s3k_word_t epc = s3k_vreg_get(S3K_VREG_EPC);
 	s3k_word_t esp = s3k_vreg_get(S3K_VREG_ESP);

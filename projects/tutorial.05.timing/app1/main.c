@@ -49,7 +49,7 @@ void app2_init(void)
 {
 	int mon_idx = 8;   // Monitor index
 	int ram_idx = 0;   // RAM index
-	int uart_idx = MAX_MEMORY_FUEL; // UART index
+	int uart_idx = S3K_BOOT_MEM_UART_IDX; // UART index
 
 	// RAM configuration
 	s3k_word_t ram_base = 0x80020000;
@@ -78,7 +78,7 @@ void app2_init(void)
 
 int main(void)
 {
-	setup_uart(MAX_MEMORY_FUEL);
+	setup_uart(S3K_BOOT_MEM_UART_IDX);
 
 	puts("Monitor demo");
 	dump_timing_cap(0);
