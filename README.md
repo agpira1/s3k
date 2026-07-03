@@ -39,7 +39,7 @@ ninja -C builddir
 
 ```bash
 ./scripts/docker.sh
-cd projects/hello
+cd projects/tutorial.01.hello-world
 meson setup builddir --cross-file=../../cross/rv64imac.ini
 ninja -C builddir
 ninja -C builddir qemu-run

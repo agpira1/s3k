@@ -20,10 +20,9 @@ run_target(
 		gdb_riscv64,
 		'-ex', 'target remote 127.0.0.1:3333',
 		'-ex', 'add-symbol-file ' + app1_elf.full_path(),
-		'-ex', 'add-symbol-file ' + app2_elf.full_path(),
 		'-ex', 'add-symbol-file ' + s3k_elf.full_path()
 	],
-	depends : [s3k_elf, app1_elf, app2_elf],
+	depends : [s3k_elf, app1_elf],
 )
 
 qemu_system_riscv64 = find_program('qemu-system-riscv64', required: false)
