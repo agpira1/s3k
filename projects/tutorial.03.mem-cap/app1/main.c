@@ -64,7 +64,7 @@ int main(void)
 	setup_uart(S3K_BOOT_MEM_UART_IDX);
 	printf("Hello, world\n");
 
-	dump_memory_cap(0);
+	dump_memory_cap(S3K_BOOT_MEM_RAM_IDX);
 	dump_memory_cap(S3K_BOOT_MEM_UART_IDX);
 
 	// RAM configuration
@@ -73,7 +73,7 @@ int main(void)
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 2; // size
 	s3k_word_t ram_slot = 3; // pmp slot
-	s3k_word_t idx = s3k_mem_derive(0, ram_fuel, ram_perm, ram_base, ram_size);
+	s3k_word_t idx = s3k_mem_derive(S3K_BOOT_MEM_RAM_IDX, ram_fuel, ram_perm, ram_base, ram_size);
 	if (idx < 0) {
 		printf("Failed to derive memory capability %lx\n", ram_base);
 		return 1;
