@@ -40,6 +40,10 @@ foreach cpu_num : tutorial_qemu_loader_cpus
   tutorial_qemu_run_command += ['-device', 'loader,addr=0x90000000,cpu-num=' + cpu_num.to_string()]
 endforeach
 
+if tutorial_qemu_loader_cpus.length() > 1
+  tutorial_qemu_run_command += ['-smp', tutorial_qemu_loader_cpus.length().to_string()]
+endif
+
 run_target(
   'qemu-run',
   command: tutorial_qemu_run_command,

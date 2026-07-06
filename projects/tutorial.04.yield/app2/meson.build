@@ -1,4 +1,5 @@
 app_platform_conf = configuration_data()
+# actually the address should be platform-app dependent
 app_platform_conf.set('APP_RAM_ORIGIN', '0x80020000')
 app_platform_conf.set('APP_RAM_LENGTH', '0x10000')
 app_platform_conf.set('UART_BASE', app_uart_base)

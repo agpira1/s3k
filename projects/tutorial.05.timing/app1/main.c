@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "app2_layout.h"
+
 extern char __uart_base[]; // UART base address.
 
 static void setup_uart(int idx)
@@ -47,13 +49,13 @@ void mem_init(s3k_word_t mon_idx, s3k_word_t idx, s3k_word_t slot, s3k_word_t cf
 
 void app2_init(void)
 {
-	int mon_idx = 8;   // Monitor index
-	int ram_idx = 0;   // RAM index
+	int mon_idx = S3K_BOOT_MON_P1_IDX;   // Monitor index
+	int ram_idx = S3K_BOOT_MEM_RAM_IDX;;   // RAM index
 	int uart_idx = S3K_BOOT_MEM_UART_IDX; // UART index
 
 	// RAM configuration
-	s3k_word_t ram_base = 0x80020000;
-	s3k_word_t ram_size = 0x10000;
+	s3k_word_t ram_base = APP2_RAM_ORIGIN;
+	s3k_word_t ram_size = APP2_RAM_LENGTH;
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 1;
 	s3k_word_t ram_slot = 1;
@@ -70,7 +72,7 @@ void app2_init(void)
 		printf("Failed to set program counter to RAM start\n");
 		return;
 	}
-	if 	(s3k_mon_resume(8) != 0) {
+	if 	(s3k_mon_resume(mon_idx) != 0) {
 		printf("Failed to resume\n");
 		return;
 	}
@@ -81,20 +83,20 @@ int main(void)
 	setup_uart(S3K_BOOT_MEM_UART_IDX);
 
 	puts("Monitor demo");
-	dump_timing_cap(0);
+	dump_timing_cap(S3K_BOOT_TSL_C0_IDX);
 
 	app2_init();
 	puts("Second process ready");
 	s3k_sync();
 	// Parallel
 	if (false) {
-		s3k_tsl_set(MAX_TIME_FUEL, true);
-		s3k_mon_tsl_grant(8, MAX_TIME_FUEL);
+		s3k_tsl_set(S3K_BOOT_TSL_C1_IDX, true);
+		s3k_mon_tsl_grant(S3K_BOOT_MON_P1_IDX,(S3K_BOOT_TSL_C1_IDX));
 	} else if (false) {
-		s3k_mon_tsl_derive(8, 0, 1, true, 16);
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 16);
 	} else if (true) {
 		/* s3k_mon_tsl_grant(8, 0); */
-		s3k_mon_tsl_derive(8, 0, 1, true, 32);
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 32);
 	}
 	while (true) {
 		puts("Process 1\n");

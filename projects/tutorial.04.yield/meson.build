@@ -11,6 +11,7 @@ s3k = subproject('s3k')
 libs3k_dep = s3k.get_variable('lib_dep')
 s3k_elf = s3k.get_variable('elf')
 
+# TODO, instead of this, generate a file with the macros when kernel is compiled
 subdir('subprojects/s3k/projects/_mesonlib/tutorial_options')
 
 if (get_option('platform') == 'qemu_virt') or (get_option('platform') == 'qemu_virt4')

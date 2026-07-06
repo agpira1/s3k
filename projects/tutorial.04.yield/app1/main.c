@@ -49,7 +49,7 @@ void mem_init(s3k_word_t mon_idx, s3k_word_t idx, s3k_word_t slot, s3k_word_t cf
 
 void app2_init(void)
 {
-	int mon_idx = S3K_BOOT_MEM_P1_IDX;   // Monitor index
+	int mon_idx = S3K_BOOT_MON_P1_IDX;   // Monitor index
 	int ram_idx = S3K_BOOT_MEM_RAM_IDX;   // RAM index
 	int uart_idx = S3K_BOOT_MEM_UART_IDX; // UART index
 
@@ -72,7 +72,7 @@ void app2_init(void)
 		printf("Failed to set program counter to RAM start\n");
 		return;
 	}
-	if 	(s3k_mon_resume(8) != 0) {
+	if 	(s3k_mon_resume(mon_idx) != 0) {
 		printf("Failed to resume\n");
 		return;
 	}
@@ -90,7 +90,7 @@ int main(void)
 	s3k_sync();
 	while (true) {
 		puts("yield to second process\n");
-		int err = s3k_mon_yield(S3K_BOOT_MEM_P1_IDX);			// Yield to monitor 8
+		int err = s3k_mon_yield(S3K_BOOT_MON_P1_IDX);			// Yield to monitor 8
 		if (err < 0) {
 			printf("Failed to yield, err=%d\n", err);
 			return 0;

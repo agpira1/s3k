@@ -6,6 +6,8 @@
  * Concrete capability indices are derived from these ordinals and the
  * configured MAX_MEMORY_FUEL block size.
  */
+// TODO possibly use function macros
+//
 #define S3K_BOOT_MEM_RAM_ORD 0
 #define S3K_BOOT_MEM_UART_ORD 1
 #define S3K_BOOT_MEM_SPM_ORD 2
@@ -18,4 +20,7 @@
 #define S3K_BOOT_MON_P1_ORD 1
 
 #define S3K_BOOT_MON_P0_IDX (S3K_BOOT_MON_P0_ORD * MAX_MONITOR_FUEL)
-#define S3K_BOOT_MEM_P1_IDX (S3K_BOOT_MON_P1_ORD * MAX_MONITOR_FUEL)
+#define S3K_BOOT_MON_P1_IDX (S3K_BOOT_MON_P1_ORD * MAX_MONITOR_FUEL)
+
+#define S3K_BOOT_TSL_C0_IDX (0 * MAX_TIME_FUEL)
+#define S3K_BOOT_TSL_C1_IDX (1 * MAX_TIME_FUEL)

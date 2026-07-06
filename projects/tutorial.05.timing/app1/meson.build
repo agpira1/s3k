@@ -1,16 +1,30 @@
-subdir('platform')
+app_platform_conf = configuration_data()
+app_platform_conf.set('APP_RAM_ORIGIN', '0x80000000')
+app_platform_conf.set('APP_RAM_LENGTH', '0x10000')
+app_platform_conf.set('UART_BASE', app_uart_base)
+
+configure_file(
+  input: app_platform_ld_in,
+  output: 'app.ld',
+  configuration: app_platform_conf,
+)
+
+app_platform_ld = meson.current_build_dir() / 'app.ld'
 
 app1_elf = executable(
 	'app1.elf',
 	sources: files(
 		'head.S',
 		'main.c',
-	) + app1_platform_uart,
+	) + app_platform_uart,
+	include_directories: [
+		app2_layout_inc,
+	],
 	c_args: tutorial_app_c_args,
 	link_args: [
 		'-nostartfiles',
 		'-specs=picolibc.specs',
-		'-T', app1_platform_ld,
+		'-T', app_platform_ld,
 	],
 	dependencies: [
 		libs3k_dep,
