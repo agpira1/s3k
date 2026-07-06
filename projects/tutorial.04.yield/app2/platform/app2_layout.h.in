@@ -1,4 +1,0 @@
-#pragma once
-
-#define APP2_RAM_ORIGIN ((s3k_word_t)@APP2_RAM_ORIGIN@)
-#define APP2_RAM_SIZE ((s3k_word_t)@APP2_RAM_SIZE@)
