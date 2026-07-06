@@ -55,7 +55,7 @@ void app2_init(void)
 
 	// RAM configuration
 	s3k_word_t ram_base = APP2_RAM_ORIGIN;
-	s3k_word_t ram_size = APP2_RAM_SIZE;
+	s3k_word_t ram_size = APP2_RAM_LENGTH;
 	s3k_word_t ram_perm = S3K_MEM_PERM_RWX; // Read/Write/Execute permissions
 	s3k_word_t ram_fuel = 1;
 	s3k_word_t ram_slot = 1;
