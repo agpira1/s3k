@@ -98,9 +98,15 @@ int main(void)
 	puts("Third process ready");
 	s3k_sync();
 
-	s3k_mon_tsl_derive(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 10);
-	s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 10);
+	int i = 0;
 	while (true) {
-		puts("Process 1\n");
+		while (s3k_tsl_revoke(S3K_BOOT_TSL_C0_IDX)) {
+
+		}
+		i = (i+1)%30;
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, i);
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 30-i);
+		s3k_sync();
+		printf("Process 1: %d\n", i);
 	}
 }
