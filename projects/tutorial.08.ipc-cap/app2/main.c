@@ -52,7 +52,7 @@ int main(s3k_word_t server)
 		/* s3k_mem_sync(); */
 		printf("app2 after sync\n");
 		msg.capty = 0;
-		msg.data[0] = *((uint64_t *)(ram_base));
+		msg.data[0] = *((uint64_t *)(ram_base)) * 2;
 		printf("Successfully read in random memory 0x%lx\n", *((uint64_t *)(ram_base)));
 	// Record cycle count after reply
 		// The message buffer can be used to communicate timing information back to the

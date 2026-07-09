@@ -155,7 +155,7 @@ int mem_revoke(pid_t owner, index_t i)
 		}
 		// Invalidate the child capability.
 		mem_table[j].owner = INVALID_PID;
-
+;
 		// Reclaim the child's capability table.
 		mem_table[i].cfree += mem_table[j].cfree;
 
