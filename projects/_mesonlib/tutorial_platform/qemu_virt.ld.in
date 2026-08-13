@@ -2,6 +2,7 @@ OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
 __uart_base  = @UART_BASE@;
+__virtio_base  = @VIRTIO_BASE@;
 
 MEMORY {
     RAM (rwx) : ORIGIN = @APP_RAM_ORIGIN@, LENGTH = @APP_RAM_LENGTH@

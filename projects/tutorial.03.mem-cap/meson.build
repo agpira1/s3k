@@ -17,6 +17,7 @@ if (get_option('platform') == 'qemu_virt') or (get_option('platform') == 'qemu_v
   app_platform_uart = files('../_mesonlib/tutorial_platform/ns16550a.c')
   app_platform_ld_in = files('../_mesonlib/tutorial_platform/qemu_virt.ld.in')
   app_uart_base = '0x10000000'
+  app_virtio_base = '0x10001000'
 elif (get_option('platform') == 'cheshire') or (get_option('platform') == 'cheshire2')
   app_platform_uart = files('../_mesonlib/tutorial_platform/ti16750.c')
   app_platform_ld_in = files('../_mesonlib/tutorial_platform/cheshire.ld.in')

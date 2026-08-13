@@ -44,6 +44,10 @@ if tutorial_qemu_loader_cpus.length() > 1
   tutorial_qemu_run_command += ['-smp', tutorial_qemu_loader_cpus.length().to_string()]
 endif
 
+if is_variable('tutorial_qemu_options')
+  tutorial_qemu_run_command += tutorial_qemu_options
+endif
+
 run_target(
   'qemu-run',
   command: tutorial_qemu_run_command,

@@ -3,7 +3,7 @@
 if get_option('platform') == 'qemu_virt'
 	platform_opts = {
 	    'npmp': '8',
-	    'nmemcaps': '2',
+	    'nmemcaps': '3',
 	    'nharts': '1',
 	    'rtchz': '10000000',
 	}
@@ -12,7 +12,7 @@ if get_option('platform') == 'qemu_virt'
 elif get_option('platform') == 'qemu_virt4'
 	platform_opts = {
 	    'npmp': '8',
-	    'nmemcaps': '2',
+	    'nmemcaps': '3',
 	    'nharts': '2',
 	    'rtchz': '10000000',
 	}
