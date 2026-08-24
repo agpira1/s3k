@@ -49,7 +49,7 @@ void mem_init(s3k_word_t mon_idx, s3k_word_t idx, s3k_word_t slot, s3k_word_t cf
 
 void app2_init(void)
 {
-	int mon_idx = S3K_BOOT_MON_P1_IDX;   // Monitor index
+	int mon_idx = S3K_BOOT_MON_P2_IDX;   // Monitor index
 	int ram_idx = S3K_BOOT_MEM_RAM_IDX;;   // RAM index
 	int uart_idx = S3K_BOOT_MEM_UART_IDX; // UART index
 
@@ -91,12 +91,12 @@ int main(void)
 	// Parallel
 	if (false) {
 		s3k_tsl_set(S3K_BOOT_TSL_C1_IDX, true);
-		s3k_mon_tsl_grant(S3K_BOOT_MON_P1_IDX,(S3K_BOOT_TSL_C1_IDX));
+		s3k_mon_tsl_grant(S3K_BOOT_MON_P2_IDX,(S3K_BOOT_TSL_C1_IDX));
 	} else if (false) {
-		s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 16);
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 16);
 	} else if (true) {
-		/* s3k_mon_tsl_grant(8, 0); */
-		s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 32);
+		/* s3k_mon_tsl_grant(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX); */
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 32);
 	}
 	while (true) {
 		puts("Process 1\n");

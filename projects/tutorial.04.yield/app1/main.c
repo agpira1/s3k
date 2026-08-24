@@ -90,12 +90,7 @@ int main(void)
 	s3k_sync();
 	while (true) {
 		puts("yield to second process\n");
-		int err = s3k_mon_reg_set(S3K_BOOT_MON_P2_IDX, S3K_REG_A0, 0);
-		if (err != 0)
-			printf("Failed to update register, err=%d\n", err);
-		else
-			printf("Success to update register, err=%d\n", err);
-
+		int err;
 		err = s3k_mon_yield(S3K_BOOT_MON_P2_IDX);
 		if (err < 0) {
 			printf("Failed to yield, err=%d\n", err);
