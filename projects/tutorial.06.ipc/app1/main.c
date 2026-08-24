@@ -31,17 +31,17 @@ int main(void)
 	// Set up IPC endpoints and grant permissions
 	s3k_ipc_flag_t flags = S3K_IPC_FLAG_YIELD;
 	s3k_ipc_mode_t mode = S3K_IPC_MODE_BSYNC;
-	int server = s3k_ipc_derive(0, 2, mode, flags);	     // Derive server endpoint
+	int server = s3k_ipc_derive(S3K_BOOT_IPC_0, 2, mode, flags);	     // Derive server endpoint
 	int client = s3k_ipc_derive(server, 1, mode, flags); // Derive client endpoint
 
-	s3k_mon_ipc_grant(8, server);		// Grant server endpoint to monitor 8
-	s3k_mon_reg_set(8, S3K_REG_A0, server); // Set server endpoint in monitor 8's register
-	s3k_mon_resume(8);			// Resume monitor 8 (server)
+	s3k_mon_ipc_grant(S3K_BOOT_MON_P2_IDX, server);		// Grant server endpoint to monitor 8
+	s3k_mon_reg_set(S3K_BOOT_MON_P2_IDX, S3K_REG_A0, server); // Set server endpoint in monitor 8's register
+	s3k_mon_resume(S3K_BOOT_MON_P2_IDX);			// Resume monitor 8 (server)
 
 	while (true) {
-		s3k_mon_yield(8);			// Yield to monitor 8
+		s3k_mon_yield(S3K_BOOT_MON_P2_IDX);			// Yield to monitor 8
 		uint64_t state;
-		s3k_mon_state_get(8, &state);
+		s3k_mon_state_get(S3K_BOOT_MON_P2_IDX, &state);
 		if (state & PROC_STATE_BLOCKED)
 			break;
 	}
@@ -50,7 +50,6 @@ int main(void)
 	printf("call,replyrecv\n");
 	for (int i = 0; i < 100; ++i) {
 		s3k_sleep_until(0);				         // Synchronize to the next time slot
-
 		s3k_msg_t msg = {};
 		msg.capty = 0;
 		msg.capidx = 0;
@@ -60,7 +59,7 @@ int main(void)
 	}
 
 	// Suspend server and client
-	s3k_mon_suspend(8);
-	s3k_mon_suspend(0);
+	s3k_mon_suspend(S3K_BOOT_MON_P2_IDX);
+	s3k_mon_suspend(S3K_BOOT_MON_P1_IDX);
 	s3k_sync();
 }

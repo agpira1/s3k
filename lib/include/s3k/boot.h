@@ -28,3 +28,5 @@
 
 #define S3K_BOOT_TSL_C0_IDX (0 * MAX_TIME_FUEL)
 #define S3K_BOOT_TSL_C1_IDX (1 * MAX_TIME_FUEL)
+
+#define S3K_BOOT_IPC_0 0
