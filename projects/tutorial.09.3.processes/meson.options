@@ -2,6 +2,7 @@
 option('nproc', type : 'integer', value : 4)
 # Number of time slots per hart.
 option('ntimeslot', type : 'integer', value : 32)
+
 # Amount of fuel per memory capability
 option('nmemoryfuel', type : 'integer', value : 16)
 # Amount of fuel per time capability

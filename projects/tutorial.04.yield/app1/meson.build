@@ -2,6 +2,7 @@ app_platform_conf = configuration_data()
 app_platform_conf.set('APP_RAM_ORIGIN', '0x80000000')
 app_platform_conf.set('APP_RAM_LENGTH', '0x10000')
 app_platform_conf.set('UART_BASE', app_uart_base)
+app_platform_conf.set('VIRTIO_BASE', app_virtio_base)
 
 configure_file(
   input: app_platform_ld_in,
