@@ -50,11 +50,11 @@ void mem_init(s3k_word_t mon_idx, s3k_word_t idx, s3k_word_t slot, s3k_word_t cf
 
 void app_init(int app_id)
 {
-	int mon_idx = S3K_BOOT_MON_P1_IDX;
+	int mon_idx = S3K_BOOT_MON_P2_IDX;
 	s3k_word_t ram_base = APP2_RAM_ORIGIN;
 	s3k_word_t ram_size = APP2_RAM_LENGTH;
 	if (app_id == 3) {
-		mon_idx = S3K_BOOT_MON_P2_IDX;
+		mon_idx = S3K_BOOT_MON_P3_IDX;
 		ram_base = APP3_RAM_ORIGIN;
 		ram_size = APP3_RAM_LENGTH;
 	}
@@ -104,8 +104,8 @@ int main(void)
 
 		}
 		i = (i+1)%30;
-		s3k_mon_tsl_derive(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, i);
-		s3k_mon_tsl_derive(S3K_BOOT_MON_P1_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 30-i);
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P3_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, i);
+		s3k_mon_tsl_derive(S3K_BOOT_MON_P2_IDX, S3K_BOOT_TSL_C0_IDX, 1, true, 30-i);
 		s3k_sync();
 		printf("Process 1: %d\n", i);
 	}

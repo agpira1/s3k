@@ -3,6 +3,7 @@ app_platform_conf.set('APP_RAM_ORIGIN', '0x80020000')
 app_platform_conf.set('APP_RAM_LENGTH', '0x10000')
 app_platform_conf.set('UART_BASE', app_uart_base)
 app_platform_conf.set('APP_LAYOUT_PREFIX', 'APP2')
+app_platform_conf.set('VIRTIO_BASE', app_virtio_base)
 
 
 
