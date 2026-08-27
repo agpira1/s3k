@@ -26,6 +26,7 @@ Using the temporal fence instruction (see [PULP's CVA6 implementation](https://g
 ## Compilation instructions
 
 Requirements: Docker (rootless).
+The repo-managed container image installs the extra tooling needed by the filesystem tutorial targets, including `mtools`, and defaults to `linux/amd64` for compatibility with the published toolchain image.
 
 ### Compiling only the kernel
 
