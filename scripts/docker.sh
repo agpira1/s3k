@@ -10,4 +10,8 @@ DOCKER_PLATFORM="${S3K_DOCKER_PLATFORM:-linux/amd64}"
 
 docker build --platform "$DOCKER_PLATFORM" -t "$IMAGE_NAME" -f "$REPO_ROOT/.devcontainer/Dockerfile" "$REPO_ROOT/.devcontainer"
 
-docker run --platform "$DOCKER_PLATFORM" -it --rm -v "$WORKSPACE:/workspace" -w /workspace "$IMAGE_NAME"
+docker run --platform "$DOCKER_PLATFORM" -it --rm \
+	-p "5555:5555" \
+	-v "$WORKSPACE:/workspace" \
+	-w /workspace \
+	"$IMAGE_NAME"
