@@ -1,6 +1,10 @@
 # Specification for implementation of stack canaries in S3K. 
+
+## What this project aims to protect against.
+Buffer overflow attacks utlilize bugs commonly found in non-memory safe code. Using functions that read or write data from memory that haven't been limited to set bounds enables reading or writing to a larger part of memory than intended. This can give an attacker power over the controlflow of a process as well as remote code execution by writing their own code to the memory before it is executed. Because of it's severity several different ways to protect against this type of attack has been created, usually used together to increase the security of the operative system. The goal is to protect the OS as the process can't be seen as trusted space. 
+
 ## What is a stack canary?
-Stack canaries are used as buffer overflow protection of the stack by operative systems. Canaries are a space filled with a value known to a monitor. 
+Stack canaries are on of many measures that can be used as buffer overflow protection. Canaries are a space filled with a value known to a monitor. 
 When the value changes during runtime the monitor knows that a behaviour not inherent to the program has happened and can act to protect the operative system, usually terminating the process. 
 There are different types of canaries used to protect the stack.
 
@@ -19,21 +23,17 @@ Random XOR canaries are random canaries with extra security implemented to make 
 
 The project will encompass implementing random canaries into the control-flow of the S3K kernel. 
 
-### Steps needed for the canary:
+### Likely steps needed for the canary:
 
-Entropy for a randomized number. 
-Allocation and writing of the canary to each function on the stack before the stackpointer and returnaddress. 
-Canary monitor placed inside of a reasonable handler that already interrupts the process-flow, or creating a new hook at certain actions where the canary monitor can check the value. 
-Error handling for when the monitor deems the function tampered with. 
-
-
+Entropy for a randomized number and creation of number on process start.\
+Allocation and writing of the canary to each function on the stack before the stackpointer and returnaddress.\
+Canary monitor placed inside of a reasonable handler that already interrupts the process-flow, or creating a new hook at certain actions where the canary monitor can check the value.\
+Error handling for when the monitor deems the function tampered with and some label to see why the function exited.
 
 
+It would be reasonable for us to edit some parts of the processor code that already hooks at good moments and add our own code. Instead of creating an unnecessarily complex workflow. 
 
-
-
-
-
+The canary function generates one canary string per process and then reuse it in every function to keep the overhead small. The string is created on process start. It would be reasonable to add our code to the process start and declaration function that sets up the process and PCB. 
 
 
 
