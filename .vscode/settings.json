@@ -1,0 +1,67 @@
+{
+	// ---------------------------------------------------------------------
+	// IntelliSense
+	//
+	// Two engines can understand this tree, and only one should be active.
+	//
+	//   clangd (recommended)  reads compile_commands.json directly, so it
+	//                         gets the exact -march, -mabi, -D and -include
+	//                         flags per file. Needs no cross compiler: the
+	//                         driver name alone tells it the target.
+	//
+	//   ms-vscode.cpptools    also reads compile_commands.json, configured in
+	//                         c_cpp_properties.json. To use it instead, set
+	//                         "C_Cpp.intelliSenseEngine" back to "default"
+	//                         and disable the clangd extension.
+	//
+	// Regenerate the database when you switch projects:
+	//     make compile-commands PROJECT=ping-pong
+	// ---------------------------------------------------------------------
+	"C_Cpp.intelliSenseEngine": "disabled",
+
+	"clangd.arguments": [
+		"--compile-commands-dir=${workspaceFolder}",
+		"--background-index",
+		"--clang-tidy",
+		"--header-insertion=never",
+		"--completion-style=detailed",
+		"--pch-storage=memory"
+	],
+	"clangd.checkUpdates": false,
+
+	// Freestanding C, never C++. Without this, .h files under common/inc and
+	// kernel/inc open in C++ mode and complain about implicit conversions
+	// that are legal C.
+	"files.associations": {
+		"*.h": "c",
+		"*.ld": "ld",
+		"*.inc": "c",
+		"s3k_conf.h": "c"
+	},
+
+	// The tree is formatted with the repository's own .clang-format:
+	// hard tabs, 8-wide, 80 columns. Matching it here keeps diffs clean.
+	"[c]": {
+		"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 8,
+		"editor.rulers": [80]
+	},
+	"[makefile]": {
+		"editor.insertSpaces": false,
+		"editor.tabSize": 8
+	},
+
+	// Build artifacts and the generated database are noise in the explorer
+	// and in search results.
+	"files.exclude": {
+		"**/build": true
+	},
+	"search.exclude": {
+		"**/build": true,
+		"compile_commands.json": true,
+		".cache": true
+	},
+
+	"makefile.configureOnOpen": false
+}
