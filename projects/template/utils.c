@@ -1,4 +1,4 @@
-/* See utils.h for what each function does and why. */
+/* See https://marcusson.dev/s3k-api-ref */
 
 #include "utils.h"
 
@@ -46,12 +46,6 @@ bool util_check(const char *what, s3k_err_t err)
 	return false;
 }
 
-/* alt_printf understands %c %s %x %X %d %D and %% only. There is no width, no
- * precision, and no default case in the format loop, so an unknown specifier
- * such as %Z prints nothing and consumes no argument. %x reads an unsigned
- * int, %X an unsigned long; bitfields promote to int, so every 64-bit slot is
- * cast explicitly here rather than relying on the calling convention to
- * widen it. */
 void util_print_cap(s3k_cap_t cap)
 {
 	switch (cap.type) {
@@ -139,8 +133,6 @@ bool util_cap_is_free(s3k_cidx_t idx)
 
 	if (idx >= S3K_CAP_CNT)
 		return false;
-	/* Reading an empty slot fails with S3K_ERR_EMPTY. Any other failure
-	 * means the index is unusable, which is also not free. */
 	return s3k_cap_read(idx, &cap) == S3K_ERR_EMPTY;
 }
 
@@ -177,8 +169,6 @@ s3k_err_t util_setup_uart(s3k_cidx_t mem_idx, s3k_cidx_t dst_idx,
 	if (err != S3K_SUCCESS)
 		return err;
 
-	/* Without this the frame exists only in the shadow state and the
-	 * hardware still refuses the store. */
 	s3k_sync_mem();
 	return S3K_SUCCESS;
 }
@@ -196,13 +186,6 @@ void util_setup_trap(void (*handler)(void), void *stack_base,
 
 void util_default_trap_handler(void)
 {
-	/* On a trap the kernel has already done:
-	 *   epc    = pc          (faulting instruction)
-	 *   pc     = tpc         (this function)
-	 *   esp    = sp          (stack at the fault)
-	 *   sp     = tsp         (trap stack)
-	 *   ecause = mcause      (RISC-V privileged spec)
-	 *   eval   = mtval */
 	uint64_t epc = s3k_reg_read(S3K_REG_EPC);
 	uint64_t esp = s3k_reg_read(S3K_REG_ESP);
 	uint64_t ecause = s3k_reg_read(S3K_REG_ECAUSE);
@@ -211,14 +194,6 @@ void util_default_trap_handler(void)
 	alt_printf("trap: epc:%X esp:%X ecause:%X eval:%X\n", epc, esp, ecause,
 		   eval);
 
-	/* Returning restores pc from epc and sp from esp, so the faulting
-	 * instruction runs again. To skip it instead, advance epc by the
-	 * instruction width before returning:
-	 *
-	 *     s3k_reg_write(S3K_REG_EPC, epc + 4);
-	 *
-	 * which is only correct for a 32-bit instruction; compressed
-	 * instructions are 2 bytes. */
 }
 
 /* ------------------------------------------------------------------ */
@@ -241,9 +216,6 @@ s3k_err_t util_grant_memory(s3k_pid_t pid, s3k_cidx_t mem_src, s3k_addr_t base,
 	if (err != S3K_SUCCESS)
 		return err;
 
-	/* The slice now occupies mem, so the next free slot is a different
-	 * one. This is why util_find_free_cap must be called again rather
-	 * than reused. */
 	pmp = util_find_free_cap();
 	if (pmp == UTIL_NO_CAP)
 		return S3K_ERR_DST_OCCUPIED;
@@ -311,8 +283,6 @@ s3k_err_t util_grant_time(s3k_pid_t pid, s3k_cidx_t src, s3k_time_slot_t bgn,
 	if (slice == UTIL_NO_CAP)
 		return S3K_ERR_DST_OCCUPIED;
 
-	/* The hart number is a property of the source capability, so read it
-	 * rather than assuming hart 0. */
 	err = s3k_cap_read(src, &cap);
 	if (err != S3K_SUCCESS)
 		return err;
@@ -327,7 +297,6 @@ s3k_err_t util_grant_time(s3k_pid_t pid, s3k_cidx_t src, s3k_time_slot_t bgn,
 	if (err != S3K_SUCCESS)
 		return err;
 
-	/* Rebuild the schedule so the new owner is admitted. */
 	s3k_sync();
 	return S3K_SUCCESS;
 }
@@ -360,7 +329,6 @@ s3k_err_t util_make_socket_pair(s3k_chan_t chan, s3k_ipc_mode_t mode,
 	if (srv == UTIL_NO_CAP)
 		return S3K_ERR_DST_OCCUPIED;
 
-	/* Tag 0 makes this the receiving end. */
 	err = s3k_cap_derive(CHANNEL, srv,
 			     s3k_mk_socket(chan, mode, perm, 0));
 	if (err != S3K_SUCCESS)
@@ -370,7 +338,6 @@ s3k_err_t util_make_socket_pair(s3k_chan_t chan, s3k_ipc_mode_t mode,
 	if (cli == UTIL_NO_CAP)
 		return S3K_ERR_DST_OCCUPIED;
 
-	/* The client is derived from the server, not from the channel. */
 	err = s3k_cap_derive(srv, cli,
 			     s3k_mk_socket(chan, mode, perm, client_tag));
 	if (err != S3K_SUCCESS)
@@ -419,8 +386,6 @@ bool util_wait_blocked(s3k_pid_t pid)
 			return false;
 		if (state & S3K_PSF_BLOCKED)
 			return true;
-		/* Hand the target some of our time so it can reach the
-		 * receive. Without this the loop spins until our slot ends. */
 		s3k_mon_yield(MONITOR, pid);
 	}
 }
