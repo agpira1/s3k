@@ -7,8 +7,13 @@ PROGRAM ?=a
 include ${ROOT}/tools.mk
 include ${ROOT}/common/plat/${PLATFORM}.mk
 
-C_SRCS:=${wildcard ${PROGRAM}/*.c}
-S_SRCS:=${wildcard ${PROGRAM}/*.S}
+# Sources shared by every application in a project, relative to the project
+# directory. Empty unless the project Makefile passes SHARED_SRCS=... , so
+# projects that do not use it build exactly as before.
+SHARED_SRCS ?=
+
+C_SRCS:=${wildcard ${PROGRAM}/*.c} ${filter %.c,${SHARED_SRCS}}
+S_SRCS:=${wildcard ${PROGRAM}/*.S} ${filter %.S,${SHARED_SRCS}}
 OBJS  :=${patsubst %.c,${BUILD}/%.o,${C_SRCS}} \
 	${patsubst %.S,${BUILD}/%.o,${S_SRCS}} \
 	${STARTFILES}/start.o
@@ -18,7 +23,7 @@ CFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	-DPLATFORM_${PLATFORM} \
 	-nostdlib \
 	-Os -g3 -flto \
-	-I${COMMON_INC} -include ${S3K_CONF_H}
+	-I${COMMON_INC} -I. -include ${S3K_CONF_H}
 
 LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -nostdlib \
@@ -43,6 +48,18 @@ ${BUILD}/${PROGRAM}/%.o: ${PROGRAM}/%.S
 	@printf "CC\t$@\n"
 
 ${BUILD}/${PROGRAM}/%.o: ${PROGRAM}/%.c
+	@mkdir -p ${@D}
+	@${CC} -o $@ $< ${CFLAGS} ${INC} -MMD -c
+	@printf "CC\t$@\n"
+
+# Sources listed in SHARED_SRCS live in the project directory rather than under
+# ${PROGRAM}, so they need their own pattern rules.
+${BUILD}/%.o: %.c
+	@mkdir -p ${@D}
+	@${CC} -o $@ $< ${CFLAGS} ${INC} -MMD -c
+	@printf "CC\t$@\n"
+
+${BUILD}/%.o: %.S
 	@mkdir -p ${@D}
 	@${CC} -o $@ $< ${CFLAGS} ${INC} -MMD -c
 	@printf "CC\t$@\n"
