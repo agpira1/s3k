@@ -1,0 +1,64 @@
+{
+	"version": 4,
+	"configurations": [
+		{
+			// Host: no RISC-V toolchain installed. Leaving compilerPath empty
+			// stops the extension from hunting for a compiler and failing;
+			// compile_commands.json supplies the real flags per file.
+			"name": "s3k",
+			"compileCommands": "${workspaceFolder}/compile_commands.json",
+			"compilerPath": "",
+			"cStandard": "c11",
+			"intelliSenseMode": "linux-gcc-x64",
+
+			// Fallback for files with no database entry, e.g. a header opened
+			// on its own or a project you have not generated yet.
+			"includePath": [
+				"${workspaceFolder}/common/inc",
+				"${workspaceFolder}/kernel/inc",
+				"${workspaceFolder}/projects/tutorial-commons"
+			],
+			"defines": [
+				"PLATFORM_qemu_virt4",
+				"__riscv",
+				"__riscv_xlen=64"
+			],
+			"forcedInclude": [
+				"${workspaceFolder}/projects/hello/s3k_conf.h"
+			],
+			"browse": {
+				"path": [
+					"${workspaceFolder}/common",
+					"${workspaceFolder}/kernel",
+					"${workspaceFolder}/projects"
+				],
+				"limitSymbolsToIncludedHeaders": true
+			}
+		},
+		{
+			// Inside the dev container, where the real cross compiler exists.
+			// Select it with "C/C++: Select a Configuration..." when attached.
+			"name": "s3k-container",
+			"compileCommands": "${workspaceFolder}/compile_commands.json",
+			"compilerPath": "/usr/bin/riscv64-unknown-elf-gcc",
+			"compilerArgs": [
+				"-march=rv64imac_zicsr_zifencei",
+				"-mabi=lp64",
+				"-mcmodel=medany"
+			],
+			"cStandard": "c11",
+			"intelliSenseMode": "linux-gcc-x64",
+			"includePath": [
+				"${workspaceFolder}/common/inc",
+				"${workspaceFolder}/kernel/inc",
+				"${workspaceFolder}/projects/tutorial-commons"
+			],
+			"defines": [
+				"PLATFORM_qemu_virt4"
+			],
+			"forcedInclude": [
+				"${workspaceFolder}/projects/hello/s3k_conf.h"
+			]
+		}
+	]
+}

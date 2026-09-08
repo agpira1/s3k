@@ -1,0 +1,12 @@
+{
+	// clangd is the recommended C engine here: it reads compile_commands.json
+	// directly, so it sees the exact -march, -mabi, -D and -include flags the
+	// build uses. The C/C++ extension works too (see c_cpp_properties.json),
+	// but do not run both IntelliSense engines at once.
+	"recommendations": [
+		"llvm-vs-code-extensions.vscode-clangd",
+		"ms-vscode.makefile-tools",
+		"webfreak.debug"
+	],
+	"unwantedRecommendations": []
+}
