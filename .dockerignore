@@ -1,0 +1,17 @@
+# Keep the build context small and the image free of host build artifacts.
+.git
+.github
+docs
+**/build
+*.a
+*.o
+*.d
+*.su
+*.out
+*.elf
+*.bin
+*.hex
+*.da
+*.res
+compile_commands.json
+.cache
