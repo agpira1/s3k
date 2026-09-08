@@ -9,8 +9,6 @@ include ${ROOT}/tools.mk
 
 APPS=app0
 
-# Compiled into every application in this project, in addition to
-# <app>/*.c. Paths are relative to this directory.
 SHARED_SRCS=utils.c
 
 ELFS:=${patsubst %, ${BUILD}/%.elf, kernel ${APPS}}
