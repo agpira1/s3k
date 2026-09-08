@@ -1,0 +1,41 @@
+# Development environment for S3K.
+#
+# The image is self-contained: the Dockerfile copies the repository into /s3k,
+# so the container needs nothing from the host at run time.
+#
+#   docker compose build                  rebuild after changing sources
+#   docker compose up -d                  start the persistent service
+#   docker compose exec s3k bash          interactive shell in /s3k
+#   docker compose down                   stop and remove it
+#
+# One-off interactive shell without a long-running service:
+#
+#   docker compose run --rm s3k
+#
+# Because the sources are copied in rather than mounted, host edits are not
+# visible inside a running container. Re-run `docker compose build` (and
+# `docker compose up -d` to replace the container) after changing code. To work
+# against the live tree instead, uncomment the volumes block below.
+
+services:
+  s3k:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: s3k-dev
+    working_dir: /s3k
+
+    # Keep bash alive so `docker compose up -d` leaves something to exec into.
+    command: ["bash"]
+    stdin_open: true
+    tty: true
+
+    # Reap zombie processes left behind by interrupted QEMU runs.
+    init: true
+
+    # Live-edit mode: mount the working tree over the copied one so host
+    # changes take effect without rebuilding. Build artifacts then land in the
+    # host tree and are owned by the container user, so `make clean` from the
+    # host may need sudo.
+    # volumes:
+    #   - .:/s3k
