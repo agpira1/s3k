@@ -1,0 +1,85 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			// The default build task (Ctrl+Shift+B). Compiles inside the
+			// container, so no host toolchain is needed.
+			"label": "s3k: build project",
+			"type": "shell",
+			"command": "./run.sh",
+			"args": ["${input:project}"],
+			"options": {
+				"env": { "S3K_TARGET": "all" }
+			},
+			"group": { "kind": "build", "isDefault": true },
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			// QEMU needs a real terminal: it takes over stdin and exits with
+			// Ctrl-a then x.
+			"label": "s3k: run project in QEMU",
+			"type": "shell",
+			"command": "./run.sh",
+			"args": ["${input:project}"],
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"echo": true
+			},
+			"problemMatcher": []
+		},
+		{
+			// Starts QEMU paused with a GDB stub on port 3333.
+			"label": "s3k: run project under GDB",
+			"type": "shell",
+			"command": "./run.sh",
+			"args": ["${input:project}"],
+			"options": {
+				"env": { "S3K_TARGET": "qemu-gdb" }
+			},
+			"isBackground": true,
+			"presentation": { "panel": "dedicated" },
+			"problemMatcher": []
+		},
+		{
+			// Refresh IntelliSense after switching project or platform.
+			"label": "s3k: regenerate compile_commands.json",
+			"type": "shell",
+			"command": "./scripts/gen-compile-commands.sh",
+			"args": ["${input:project}"],
+			"problemMatcher": []
+		},
+		{
+			"label": "s3k: format tree",
+			"type": "shell",
+			"command": "make",
+			"args": ["format"],
+			"problemMatcher": []
+		}
+	],
+	"inputs": [
+		{
+			"id": "project",
+			"type": "pickString",
+			"description": "S3K project",
+			"default": "hello",
+			"options": [
+				"hello",
+				"trapped",
+				"ping-pong",
+				"template",
+				"exercise",
+				"tutorial.01.hello-world",
+				"tutorial.02.trap-handler",
+				"tutorial.03.mem-cap",
+				"tutorial.04.timing-cap",
+				"tutorial.05.rpc",
+				"tutorial.06.rpc-resume",
+				"tutorial.07.msg-noyield",
+				"tutorial.08.rpc-mem-cap",
+				"tutorial.09.fs"
+			]
+		}
+	]
+}
