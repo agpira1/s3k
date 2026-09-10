@@ -9,25 +9,25 @@
 /* ------------------------------------------------------------------ */
 
 static const char *const err_names[] = {
-	[S3K_SUCCESS] = "S3K_SUCCESS",
-	[S3K_ERR_EMPTY] = "S3K_ERR_EMPTY",
-	[S3K_ERR_SRC_EMPTY] = "S3K_ERR_SRC_EMPTY",
-	[S3K_ERR_DST_OCCUPIED] = "S3K_ERR_DST_OCCUPIED",
-	[S3K_ERR_INVALID_INDEX] = "S3K_ERR_INVALID_INDEX",
-	[S3K_ERR_INVALID_DERIVATION] = "S3K_ERR_INVALID_DERIVATION",
-	[S3K_ERR_INVALID_MONITOR] = "S3K_ERR_INVALID_MONITOR",
-	[S3K_ERR_INVALID_PID] = "S3K_ERR_INVALID_PID",
-	[S3K_ERR_INVALID_STATE] = "S3K_ERR_INVALID_STATE",
-	[S3K_ERR_INVALID_PMP] = "S3K_ERR_INVALID_PMP",
-	[S3K_ERR_INVALID_SLOT] = "S3K_ERR_INVALID_SLOT",
-	[S3K_ERR_INVALID_SOCKET] = "S3K_ERR_INVALID_SOCKET",
-	[S3K_ERR_INVALID_SYSCALL] = "S3K_ERR_INVALID_SYSCALL",
-	[S3K_ERR_INVALID_REGISTER] = "S3K_ERR_INVALID_REGISTER",
-	[S3K_ERR_INVALID_CAPABILITY] = "S3K_ERR_INVALID_CAPABILITY",
-	[S3K_ERR_NO_RECEIVER] = "S3K_ERR_NO_RECEIVER",
-	[S3K_ERR_PREEMPTED] = "S3K_ERR_PREEMPTED",
-	[S3K_ERR_TIMEOUT] = "S3K_ERR_TIMEOUT",
-	[S3K_ERR_SUSPENDED] = "S3K_ERR_SUSPENDED",
+    [S3K_SUCCESS] = "S3K_SUCCESS",
+    [S3K_ERR_EMPTY] = "S3K_ERR_EMPTY",
+    [S3K_ERR_SRC_EMPTY] = "S3K_ERR_SRC_EMPTY",
+    [S3K_ERR_DST_OCCUPIED] = "S3K_ERR_DST_OCCUPIED",
+    [S3K_ERR_INVALID_INDEX] = "S3K_ERR_INVALID_INDEX",
+    [S3K_ERR_INVALID_DERIVATION] = "S3K_ERR_INVALID_DERIVATION",
+    [S3K_ERR_INVALID_MONITOR] = "S3K_ERR_INVALID_MONITOR",
+    [S3K_ERR_INVALID_PID] = "S3K_ERR_INVALID_PID",
+    [S3K_ERR_INVALID_STATE] = "S3K_ERR_INVALID_STATE",
+    [S3K_ERR_INVALID_PMP] = "S3K_ERR_INVALID_PMP",
+    [S3K_ERR_INVALID_SLOT] = "S3K_ERR_INVALID_SLOT",
+    [S3K_ERR_INVALID_SOCKET] = "S3K_ERR_INVALID_SOCKET",
+    [S3K_ERR_INVALID_SYSCALL] = "S3K_ERR_INVALID_SYSCALL",
+    [S3K_ERR_INVALID_REGISTER] = "S3K_ERR_INVALID_REGISTER",
+    [S3K_ERR_INVALID_CAPABILITY] = "S3K_ERR_INVALID_CAPABILITY",
+    [S3K_ERR_NO_RECEIVER] = "S3K_ERR_NO_RECEIVER",
+    [S3K_ERR_PREEMPTED] = "S3K_ERR_PREEMPTED",
+    [S3K_ERR_TIMEOUT] = "S3K_ERR_TIMEOUT",
+    [S3K_ERR_SUSPENDED] = "S3K_ERR_SUSPENDED",
 };
 
 const char *util_err_str(s3k_err_t err)
@@ -72,8 +72,8 @@ void util_print_cap(s3k_cap_t cap)
 		alt_printf("pmp      rwx:%X used:%X slot:%X addr:%X "
 			   "base:%X size:%X\n",
 			   (uint64_t)cap.pmp.rwx, (uint64_t)cap.pmp.used,
-			   (uint64_t)cap.pmp.slot, (uint64_t)cap.pmp.addr,
-			   base, size);
+			   (uint64_t)cap.pmp.slot, (uint64_t)cap.pmp.addr, base,
+			   size);
 		break;
 	}
 	case S3K_CAPTY_MONITOR:
@@ -155,8 +155,7 @@ s3k_cidx_t util_find_free_cap(void)
 /* ------------------------------------------------------------------ */
 
 s3k_err_t util_setup_uart(s3k_cidx_t mem_idx, s3k_cidx_t dst_idx,
-			  s3k_pmp_slot_t slot, s3k_addr_t base,
-			  s3k_addr_t size)
+			  s3k_pmp_slot_t slot, s3k_addr_t base, s3k_addr_t size)
 {
 	s3k_napot_t addr = s3k_napot_encode(base, size);
 	s3k_err_t err;
@@ -177,8 +176,7 @@ s3k_err_t util_setup_uart(s3k_cidx_t mem_idx, s3k_cidx_t dst_idx,
 /* Traps                                                              */
 /* ------------------------------------------------------------------ */
 
-void util_setup_trap(void (*handler)(void), void *stack_base,
-		     size_t stack_size)
+void util_setup_trap(void (*handler)(void), void *stack_base, size_t stack_size)
 {
 	s3k_reg_write(S3K_REG_TPC, (uint64_t)handler);
 	s3k_reg_write(S3K_REG_TSP, (uint64_t)stack_base + stack_size);
@@ -193,7 +191,6 @@ void util_default_trap_handler(void)
 
 	alt_printf("trap: epc:%X esp:%X ecause:%X eval:%X\n", epc, esp, ecause,
 		   eval);
-
 }
 
 /* ------------------------------------------------------------------ */
@@ -329,8 +326,7 @@ s3k_err_t util_make_socket_pair(s3k_chan_t chan, s3k_ipc_mode_t mode,
 	if (srv == UTIL_NO_CAP)
 		return S3K_ERR_DST_OCCUPIED;
 
-	err = s3k_cap_derive(CHANNEL, srv,
-			     s3k_mk_socket(chan, mode, perm, 0));
+	err = s3k_cap_derive(CHANNEL, srv, s3k_mk_socket(chan, mode, perm, 0));
 	if (err != S3K_SUCCESS)
 		return err;
 
