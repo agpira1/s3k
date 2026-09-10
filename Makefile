@@ -8,6 +8,10 @@ PROJECTS:=projects/hello \
 TEMPLATE:=projects/template
 NAME    ?=
 
+# Highest application index created by `make new`. 0 is app0 alone, 1 is app0
+# and app1, and so on.
+APPS    ?=0
+
 # Project described by compile_commands.json. Only one at a time: each
 # project force-includes its own s3k_conf.h and rebuilds the kernel with it.
 PROJECT ?= hello
@@ -34,31 +38,12 @@ compile-commands:
 
 new:
 	@if [ -z "${NAME}" ]; then \
-		echo "usage: make new NAME=<project-name>"; \
+		echo "usage: make new NAME=<project-name> [APPS=<n>]"; \
 		echo "creates projects/<project-name> from ${TEMPLATE}"; \
+		echo "APPS is the highest application index: 0 creates app0,"; \
+		echo "1 creates app0 and app1, and so on"; \
 		exit 1; \
 	fi
-	@case "${NAME}" in \
-	*/*|.|..) \
-		echo "make new: '${NAME}' is not a valid project name"; \
-		exit 1 ;; \
-	esac
-	@if [ -e projects/${NAME} ]; then \
-		echo "make new: projects/${NAME} already exists"; \
-		exit 1; \
-	fi
-	@if [ ! -d ${TEMPLATE} ]; then \
-		echo "make new: missing ${TEMPLATE}"; \
-		exit 1; \
-	fi
-	@cp -R ${TEMPLATE} projects/${NAME}
-	@rm -rf projects/${NAME}/build
-	@echo "created projects/${NAME}"
-	@echo
-	@echo "  build   make -C projects/${NAME}"
-	@echo "  run     make -C projects/${NAME} qemu        (exit: C-a then x)"
-	@echo "  debug   make -C projects/${NAME} qemu-gdb    (then: gdb)"
-	@echo
-	@echo "see projects/${NAME}/README.md"
+	@TEMPLATE="${TEMPLATE}" ./scripts/new-project.sh "${NAME}" "${APPS}"
 
 .PHONY: all clean format new compile-commands common ${PROJECTS}
