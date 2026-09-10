@@ -1,6 +1,6 @@
+#include "../utils.h"
 #include "altc/altio.h"
 #include "s3k/s3k.h"
-#include "utils.h"
 
 #define UART_CAP FREE_CAP_BGN
 #define UART_PMP_SLOT 1
