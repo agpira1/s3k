@@ -1,6 +1,8 @@
 # Project template
 
-Created by `make new NAME=<project-name>` from the repository root.
+Created by `make new NAME=<project-name> [APPS=<n>]` from the repository root.
+`APPS` is the highest application index: `0`, the default, creates `app0`
+alone, and `2` creates `app0`, `app1`, and `app2`.
 
 ## Files
 
