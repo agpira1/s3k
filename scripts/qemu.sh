@@ -54,10 +54,25 @@ for elf in $ELFS; do
 	LOADER+="-device loader,file=$elf "
 done
 
+# S3K_SERIAL_TCP puts the guest's UART on a TCP socket instead of this
+# terminal, so a script can drive it. Its value is [host:]port; the host
+# defaults to 0.0.0.0 so the port is reachable from outside a container.
+# QEMU waits for a client before starting, so no boot output is lost.
+if [ -n "${S3K_SERIAL_TCP:-}" ]; then
+	case ${S3K_SERIAL_TCP} in
+		*:*) SERIAL_ADDR=${S3K_SERIAL_TCP} ;;
+		*)   SERIAL_ADDR=0.0.0.0:${S3K_SERIAL_TCP} ;;
+	esac
+	CONSOLE="-display none -serial tcp:${SERIAL_ADDR},server=on,wait=on"
+	info "serial: tcp ${SERIAL_ADDR} (waiting for a client to connect)"
+else
+	CONSOLE="-nographic"
+fi
+
 qemu-system-riscv64 \
 	-M $QEMU_MACHINE \
 	-smp $QEMU_SMP \
-	-m 128M -nographic \
+	-m 128M $CONSOLE \
 	-bios none \
 	$LOADER \
 	$QEMU_OPTIONS
