@@ -14,6 +14,8 @@ static char trap_stack[1024];
 
 int main(void)
 {
+	util_stack_protect_init();
+
 	util_setup_trap(util_default_trap_handler, trap_stack,
 			sizeof trap_stack);
 

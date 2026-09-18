@@ -20,7 +20,7 @@ CFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	-Wall -Wextra -Werror \
 	-Wno-unused-parameter \
 	-Wshadow -fno-common \
-	-fno-stack-protector \
+	-fstack-protector-strong \
 	-flto \
 	-include ${S3K_CONF_H} \
 	-Iinc -I${COMMON_INC} \
@@ -29,7 +29,7 @@ CFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -Tlinker.ld \
 	 -nostartfiles -ffreestanding \
-	 -flto \
+	 -flto -fstack-protector-strong \
 	 -Wl,--no-warn-rwx-segment \
 	 -Wl,--gc-sections \
 	 --specs=nosys.specs \

@@ -385,3 +385,26 @@ bool util_wait_blocked(s3k_pid_t pid)
 		s3k_mon_yield(MONITOR, pid);
 	}
 }
+
+/* ------------------------------------------------------------------ */
+/* Stack protection                                                   */
+/* ------------------------------------------------------------------ */
+
+uintptr_t __stack_chk_guard;
+
+__attribute__((used, optimize("no-stack-protector"))) void
+util_stack_protect_init(void)
+{
+	uint64_t r = s3k_get_time();
+	r ^= (uint64_t)&__stack_chk_guard;
+	r *= 0xff51afd7ed558ccdULL;
+	r ^= r >> 33;
+	__stack_chk_guard = r & ~0xffULL;
+}
+
+__attribute__((noreturn, used)) void __stack_chk_fail(void)
+{
+	alt_puts("*** stack smashing detected ***");
+	for (;;)
+		;
+}

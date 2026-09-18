@@ -41,6 +41,8 @@ static char trap_stack[1024];
 
 int main(void)
 {
+	util_stack_protect_init();
+
 	// Set up I/O and trap handler for boot process.
 	s3k_err_t err;
 

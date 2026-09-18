@@ -372,3 +372,10 @@ void util_server_loop(s3k_cidx_t sock, util_handler_t handler, void *ctx,
  *         e.g. without a monitor capability over it.
  */
 bool util_wait_blocked(s3k_pid_t pid);
+
+/* ------------------------------------------------------------------ */
+/* Stack protection                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Seed __stack_chk_guard. Call once, first thing in main(). */
+void util_stack_protect_init(void);
