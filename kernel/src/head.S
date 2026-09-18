@@ -51,6 +51,7 @@ zero_bss:
 	addi	t0,t0,1
 2:	bne	t0,t1,1b
 
+	call	stack_chk_guard_init
 	call	kernel_init
 
 	la	t0,kernel_ready

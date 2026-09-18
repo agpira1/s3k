@@ -23,11 +23,12 @@ CFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	-DPLATFORM_${PLATFORM} \
 	-nostdlib \
 	-Os -g3 -flto \
+	-fstack-protector-strong \
 	-I${COMMON_INC} -I. -include ${S3K_CONF_H}
 
 LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -nostdlib \
-	 -flto \
+	 -flto -fstack-protector-strong \
 	 -T${PROGRAM}.ld -Tdefault.ld \
 	 -Wl,--no-warn-rwx-segments \
 	 -L${COMMON_LIB} -ls3k -laltc -lplat \
