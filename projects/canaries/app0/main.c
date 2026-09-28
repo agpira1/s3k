@@ -37,6 +37,12 @@
 #define VULN_TIME_BGN 10
 #define VULN_TIME_END 20
 
+/*Sockets setup*/
+#define FRAME_CHANNEL 0
+
+#define MON_FRAME_SOCK_CAP 3
+#define VULN_FRAME_SOCK_CAP 3
+
 static char trap_stack[1024];
 
 int main(void)
@@ -57,8 +63,31 @@ int main(void)
 	alt_printf("hello from pid %X at tick %X\n", s3k_get_pid(),
 		   s3k_get_time());
 
+	
+	s3k_cidx_t frame_server;
+	s3k_cidx_t frame_client;
+
+	err = util_make_socket_pair(
+		FRAME_CHANNEL,
+		S3K_IPC_YIELD,
+		S3K_IPC_SDATA | S3K_IPC_CDATA,
+		VULN_PID,
+		&frame_server,
+		&frame_client);
+
+	util_check("frame socket pair", err);
+
 	// Set up and resume monitor
 	s3k_cidx_t monitor_mem;
+
+	err = s3k_mon_cap_move(
+	MONITOR,
+	s3k_get_pid(),
+	frame_server,
+	MON_APP_PID,
+	MON_FRAME_SOCK_CAP);
+
+	util_check("move frame server", err);
 
 	err = util_grant_memory(MON_APP_PID, RAM_MEM, MON_APP_BASE,
 				MON_APP_SIZE, S3K_MEM_RWX, MON_APP_MEM_CAP,
@@ -73,10 +102,18 @@ int main(void)
 	err = util_grant_time(MON_APP_PID, HART0_TIME, MON_APP_TIME_BGN,
 			      MON_APP_TIME_END, MON_APP_TIME_CAP);
 	util_check("monitor time", err);
-	util_check("monitor start", util_start(MON_APP_PID, MON_APP_BASE));
 
 	// Set up and resume vuln
 	s3k_cidx_t vuln_mem;
+
+	err = s3k_mon_cap_move(
+	MONITOR,
+	s3k_get_pid(),
+	frame_client,
+	VULN_PID,
+	VULN_FRAME_SOCK_CAP);
+
+	util_check("move frame client", err);
 
 	err = util_grant_memory(VULN_PID, RAM_MEM, VULN_BASE, VULN_SIZE,
 				S3K_MEM_RWX, VULN_MEM_CAP, VULN_MEM_SLOT,
@@ -90,6 +127,9 @@ int main(void)
 	err = util_grant_time(VULN_PID, HART0_TIME, VULN_TIME_BGN,
 			      VULN_TIME_END, VULN_TIME_CAP);
 	util_check("vuln time", err);
+
+	util_check("monitor start", util_start(MON_APP_PID, MON_APP_BASE));
+
 	util_check("vuln start", util_start(VULN_PID, VULN_BASE));
 
 	util_dump_caps();

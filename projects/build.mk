@@ -33,6 +33,11 @@ LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -Wl,--no-warn-rwx-segments \
 	 -L${COMMON_LIB} -ls3k -laltc -lplat \
 
+ifeq (${PROGRAM},vuln)
+CFLAGS += -finstrument-functions
+LDFLAGS += -finstrument-functions
+endif
+
 ELF:=${BUILD}/${PROGRAM}.elf
 BIN:=${ELF:.elf=.bin}
 HEX:=${ELF:.elf=.hex}
