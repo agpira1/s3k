@@ -23,6 +23,15 @@ __attribute__((noinline, used)) void win(void)
 
 __attribute__((noinline)) static void greet(void)
 {
+	char name[128];
+
+	alt_puts("What is your name?");
+	alt_gets(name);
+	alt_printf("Hello, %s!\n", name);
+}
+
+__attribute__((noinline)) static void test(void)
+{
 	char name[64];
 
 	alt_puts("What is your name?");
@@ -46,6 +55,7 @@ int main(void)
 
 	hooks_enable();
 	greet();
+	test();
 
 	while (1)
 		;

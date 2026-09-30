@@ -4,6 +4,7 @@
 enum frame_event_type { // FRAME_ENTER and EXIT events are integers.
 	FRAME_ENTER = 1,
 	FRAME_EXIT  = 2,
+	FRAME_TOP   = 3,
 };
 
 struct frame_event {

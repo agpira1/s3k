@@ -37,7 +37,13 @@ static s3k_msg_t frame_handler(s3k_reply_t request, void *ctx)
 			function,
 			caller,
 			sp);
-	}
+	} /*else if (type == FRAME_TOP) {
+		alt_printf(
+			"preENTER:  frame_top=%X caller=%X sp=%X\n",
+			function,
+			caller,
+			sp);
+	}*/
 
 	return (s3k_msg_t){0};
 }
