@@ -1,3 +1,4 @@
+#include "../interface.h"
 #include "../utils.h"
 #include "altc/altio.h"
 #include "s3k/s3k.h"
@@ -6,42 +7,16 @@
 #define UART_PMP_SLOT 1
 
 /* monitor */
-#define MON_APP_PID 1
-#define MON_APP_BASE 0x80020000
-#define MON_APP_SIZE 0x10000
-
-/* Slots in monitor's capability table, and monitor's hardware PMP slots. */
-#define MON_APP_MEM_CAP 0
-#define MON_APP_UART_CAP 1
-#define MON_APP_TIME_CAP 2
-#define MON_APP_MEM_SLOT 0
-#define MON_APP_UART_SLOT 1
+#define MON_BASE 0x80020000
+#define MON_SIZE 0x10000
+#define MON_SLOT_MEM 0
+#define MON_SLOT_UART 1
 
 /* Time slots on hart 0, one even share per application. */
-#define MON_APP_TIME_BGN 0
-#define MON_APP_TIME_END 10
-
-/* vuln */
-#define VULN_PID 2
-#define VULN_BASE 0x80030000
-#define VULN_SIZE 0x10000
-
-/* Slots in vuln's capability table, and vuln's hardware PMP slots. */
-#define VULN_MEM_CAP 0
-#define VULN_UART_CAP 1
-#define VULN_TIME_CAP 2
-#define VULN_MEM_SLOT 0
-#define VULN_UART_SLOT 1
-
-/* Time slots on hart 0, one even share per application. */
+#define MON_TIME_BGN 0
+#define MON_TIME_END 10
 #define VULN_TIME_BGN 10
 #define VULN_TIME_END 20
-
-/*Sockets setup*/
-#define FRAME_CHANNEL 0
-
-#define MON_FRAME_SOCK_CAP 3
-#define VULN_FRAME_SOCK_CAP 3
 
 static char trap_stack[1024];
 
@@ -63,74 +38,56 @@ int main(void)
 	alt_printf("hello from pid %X at tick %X\n", s3k_get_pid(),
 		   s3k_get_time());
 
-	
-	s3k_cidx_t frame_server;
-	s3k_cidx_t frame_client;
+	// Memory and time are carved in increasing order: monitor first.
+	util_grant_memory(MONITOR_PID, RAM_MEM, MON_BASE, MON_SIZE, S3K_MEM_RWX,
+			  MON_CAP_MEM, MON_SLOT_MEM, NULL);
+	util_grant_device(MONITOR_PID, UART_MEM, UART0_BASE_ADDR, 0x8,
+			  S3K_MEM_RW, MON_CAP_UART, MON_SLOT_UART);
+	util_grant_time(MONITOR_PID, HART0_TIME, MON_TIME_BGN, MON_TIME_END,
+			MON_CAP_TIME);
 
-	err = util_make_socket_pair(
-		FRAME_CHANNEL,
-		S3K_IPC_YIELD,
-		S3K_IPC_SDATA | S3K_IPC_CDATA,
-		VULN_PID,
-		&frame_server,
-		&frame_client);
+	// vuln is not resumed here; the monitor sets its trap handler first.
+	util_grant_memory(VULN_PID, RAM_MEM, VULN_IMAGE_BASE, VULN_IMAGE_SIZE,
+			  S3K_MEM_RWX, VULN_CAP_IMAGE, VULN_SLOT_IMAGE, NULL);
+	util_grant_device(VULN_PID, UART_MEM, UART0_BASE_ADDR, 0x8, S3K_MEM_RW,
+			  VULN_CAP_UART, VULN_SLOT_UART);
+	util_grant_time(VULN_PID, HART0_TIME, VULN_TIME_BGN, VULN_TIME_END,
+			VULN_CAP_TIME);
 
-	util_check("frame socket pair", err);
+	s3k_mon_reg_write(MONITOR, VULN_PID, S3K_REG_PC, VULN_IMAGE_BASE);
 
-	// Set up and resume monitor
-	s3k_cidx_t monitor_mem;
+	s3k_cidx_t srv, cli;
 
-	err = s3k_mon_cap_move(
-	MONITOR,
-	s3k_get_pid(),
-	frame_server,
-	MON_APP_PID,
-	MON_FRAME_SOCK_CAP);
+	util_make_socket_pair(GUARD_CHAN, S3K_IPC_NOYIELD, S3K_IPC_CDATA,
+			      VULN_PID, &srv, &cli);
+	s3k_mon_cap_move(MONITOR, s3k_get_pid(), cli, VULN_PID, VULN_CAP_SOCK);
+	s3k_mon_cap_move(MONITOR, s3k_get_pid(), srv, MONITOR_PID,
+			 MON_CAP_SOCK);
 
-	util_check("move frame server", err);
+	s3k_cidx_t stack = util_find_free_cap();
 
-	err = util_grant_memory(MON_APP_PID, RAM_MEM, MON_APP_BASE,
-				MON_APP_SIZE, S3K_MEM_RWX, MON_APP_MEM_CAP,
-				MON_APP_MEM_SLOT, &monitor_mem);
-	util_check("monitor memory", err);
+	s3k_cap_derive(RAM_MEM, stack,
+		       s3k_mk_memory(VULN_STACK_BASE, VULN_STACK_TOP,
+				     S3K_MEM_RW));
+	s3k_mon_cap_move(MONITOR, s3k_get_pid(), stack, MONITOR_PID,
+			 MON_CAP_STACK_MEM);
 
-	err = util_grant_device(MON_APP_PID, UART_MEM, UART0_BASE_ADDR, 0x8,
-				S3K_MEM_RW, MON_APP_UART_CAP,
-				MON_APP_UART_SLOT);
-	util_check("monitor uart", err);
+	// Deriving from MONITOR raises its mark past the child, disabling it
+	// for lower pids. Derive a cap over the monitor first to finish with.
+	s3k_cidx_t mon_mon = util_find_free_cap();
 
-	err = util_grant_time(MON_APP_PID, HART0_TIME, MON_APP_TIME_BGN,
-			      MON_APP_TIME_END, MON_APP_TIME_CAP);
-	util_check("monitor time", err);
+	s3k_cap_derive(MONITOR, mon_mon,
+		       s3k_mk_monitor(MONITOR_PID, MONITOR_PID + 1));
 
-	// Set up and resume vuln
-	s3k_cidx_t vuln_mem;
+	s3k_cidx_t vuln_mon = util_find_free_cap();
 
-	err = s3k_mon_cap_move(
-	MONITOR,
-	s3k_get_pid(),
-	frame_client,
-	VULN_PID,
-	VULN_FRAME_SOCK_CAP);
+	s3k_cap_derive(MONITOR, vuln_mon,
+		       s3k_mk_monitor(VULN_PID, VULN_PID + 1));
+	s3k_mon_cap_move(mon_mon, s3k_get_pid(), vuln_mon, MONITOR_PID,
+			 MON_CAP_MONITOR);
 
-	util_check("move frame client", err);
-
-	err = util_grant_memory(VULN_PID, RAM_MEM, VULN_BASE, VULN_SIZE,
-				S3K_MEM_RWX, VULN_MEM_CAP, VULN_MEM_SLOT,
-				&vuln_mem);
-	util_check("vuln memory", err);
-
-	err = util_grant_device(VULN_PID, UART_MEM, UART0_BASE_ADDR, 0x8,
-				S3K_MEM_RW, VULN_UART_CAP, VULN_UART_SLOT);
-	util_check("vuln uart", err);
-
-	err = util_grant_time(VULN_PID, HART0_TIME, VULN_TIME_BGN,
-			      VULN_TIME_END, VULN_TIME_CAP);
-	util_check("vuln time", err);
-
-	util_check("monitor start", util_start(MON_APP_PID, MON_APP_BASE));
-
-	util_check("vuln start", util_start(VULN_PID, VULN_BASE));
+	s3k_mon_reg_write(mon_mon, MONITOR_PID, S3K_REG_PC, MON_BASE);
+	s3k_mon_resume(mon_mon, MONITOR_PID);
 
 	util_dump_caps();
 

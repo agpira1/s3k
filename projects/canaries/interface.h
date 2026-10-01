@@ -15,6 +15,11 @@
 #define VULN_STACK_BASE 0x8003F000
 #define VULN_STACK_TOP 0x80040000
 
+/* vuln trap handler and trap stack */
+#define VULN_TRAP_PC 0x80037000
+#define VULN_TRAP_SP 0x80038000
+#define VULN_TRAP_STACK_SIZE 0x800
+
 /* vuln PMP slots */
 #define VULN_SLOT_IMAGE 0
 #define VULN_SLOT_UART 1
