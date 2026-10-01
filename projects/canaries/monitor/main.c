@@ -1,54 +1,34 @@
+#include "../interface.h"
 #include "../utils.h"
 #include "altc/altio.h"
 #include "s3k/s3k.h"
-#include "../frame_msg.h"
-#include "../interface.h"
-
-/* Granted by app0, already loaded into the PMP unit. */
-#define MEM_CAP 0
-#define UART_CAP 1
-#define TIME_CAP 2
-
-
-#define FRAME_SOCKET_CAP 3
-
-#define MEM_PMP_SLOT 0
-#define UART_PMP_SLOT 1
 
 static char trap_stack[1024];
 
-static s3k_msg_t frame_handler(s3k_reply_t request, void *ctx)
+static void vuln_start(void)
 {
-	(void)ctx;
-
-	uint64_t type = request.data[0];
-	uint64_t function = request.data[1];
-	uint64_t caller = request.data[2];
-	uint64_t sp = request.data[3];
-
-	if (type == MSG_GUARD_PUSH) {
-		alt_printf(
-			"ENTER: function=%X caller=%X sp=%X\n",
-			function,
-			caller,
-			sp);
-	} else if (type == MSG_GUARD_POP) {
-		alt_printf(
-			"EXIT:  function=%X caller=%X sp=%X\n",
-			function,
-			caller,
-			sp);
-	} /*else if (type == FRAME_TOP) {
-		alt_printf(
-			"preENTER:  frame_top=%X caller=%X sp=%X\n",
-			function,
-			caller,
-			sp);
-	}*/
-
-	return (s3k_msg_t){0};
+	s3k_mon_reg_write(MON_CAP_MONITOR, VULN_PID, S3K_REG_TPC, VULN_TRAP_PC);
+	s3k_mon_reg_write(MON_CAP_MONITOR, VULN_PID, S3K_REG_TSP, VULN_TRAP_SP);
+	s3k_mon_resume(MON_CAP_MONITOR, VULN_PID);
 }
 
+/* Returns true if vuln should be resumed. */
+static bool dispatch(const uint64_t *data)
+{
+	switch (data[0]) {
+	case MSG_GUARD_PUSH:
+		guard_push(data[1], data[2], data[3]);
+		return true;
+	case MSG_GUARD_POP:
+		guard_pop(data[1]);
+		return true;
+	case MSG_FAULT:
+		return fault_handle(data[1], data[2], data[3]);
+	default:
+		alt_printf("monitor: unknown message %X\n", data[0]);
+		return false;
+	}
+}
 
 int main(void)
 {
@@ -62,5 +42,17 @@ int main(void)
 
 	util_dump_caps();
 
-	util_server_loop(FRAME_SOCKET_CAP, frame_handler, NULL, false);
+	vuln_start();
+
+	for (;;) {
+		s3k_reply_t r = s3k_sock_recv(MON_CAP_SOCK, 0);
+
+		if (r.err != S3K_SUCCESS)
+			continue;
+
+		// vuln's PMP can only change while it is suspended.
+		s3k_mon_suspend(MON_CAP_MONITOR, VULN_PID);
+		if (dispatch(r.data))
+			s3k_mon_resume(MON_CAP_MONITOR, VULN_PID);
+	}
 }
