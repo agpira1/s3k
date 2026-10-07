@@ -18,17 +18,18 @@ OBJS  :=${patsubst %.c,${BUILD}/%.o,${C_SRCS}} \
 	${patsubst %.S,${BUILD}/%.o,${S_SRCS}} \
 	${STARTFILES}/start.o
 DEPS  :=${OBJS:.o=.d}
-
+# Removed flto for -fstack-usage to work.
 CFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	-DPLATFORM_${PLATFORM} \
 	-nostdlib \
-	-Os -g3 -flto \
+	-Os -g3 \
 	-fstack-protector-strong \
+	-fstack-usage \
 	-I${COMMON_INC} -I. -include ${S3K_CONF_H}
-
+# Removed flto for -fstack-usage to work.
 LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -nostdlib \
-	 -flto -fstack-protector-strong \
+	 -fstack-protector-strong \
 	 -T${PROGRAM}.ld -Tdefault.ld \
 	 -Wl,--no-warn-rwx-segments \
 	 -L${COMMON_LIB} -ls3k -laltc -lplat \
