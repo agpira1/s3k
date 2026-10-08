@@ -10,5 +10,3 @@ typedef struct {
 	uint64_t canary; //Address of the canary. 
 	uint64_t fn; //Function being called. 
 }frame_t;
-
-size_t frame_depth(void); // Returns frame index/depth. 

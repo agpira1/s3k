@@ -21,7 +21,7 @@ __attribute__((noinline, used)) void win(void)
 		;
 }
 
-__attribute__((noinline)) static void greet(void)
+__attribute__((noinline)) void greet(void) // For stack_usage.c the functions need to be externally accessible to read the memory address. (Change: Removed static.)
 {
 	char name[128];
 
@@ -30,7 +30,7 @@ __attribute__((noinline)) static void greet(void)
 	alt_printf("Hello, %s!\n", name);
 }
 
-__attribute__((noinline)) static void test(void)
+__attribute__((noinline)) void test(void)
 {
 	char name[64];
 
