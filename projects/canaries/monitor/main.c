@@ -2,6 +2,7 @@
 #include "altc/altio.h"
 #include "s3k/s3k.h"
 #include "../frame_msg.h"
+#include "../interface.h"
 
 /* Granted by app0, already loaded into the PMP unit. */
 #define MEM_CAP 0
@@ -25,13 +26,13 @@ static s3k_msg_t frame_handler(s3k_reply_t request, void *ctx)
 	uint64_t caller = request.data[2];
 	uint64_t sp = request.data[3];
 
-	if (type == FRAME_ENTER) {
+	if (type == MSG_GUARD_PUSH) {
 		alt_printf(
 			"ENTER: function=%X caller=%X sp=%X\n",
 			function,
 			caller,
 			sp);
-	} else if (type == FRAME_EXIT) {
+	} else if (type == MSG_GUARD_POP) {
 		alt_printf(
 			"EXIT:  function=%X caller=%X sp=%X\n",
 			function,
