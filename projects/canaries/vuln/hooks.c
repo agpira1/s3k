@@ -5,54 +5,64 @@
 #include <stdint.h>
 #include "altc/altio.h"
 #include "../interface.h"
+#include "stack_usage.h"
 
 #define MONITOR_SOCK_CAP 3
 
 static bool hooks_ready = false;
-/*
-static inline __attribute__((no_instrument_function)) uintptr_t read_sp(void) // Does this read the correct pointer?
-{
-	uintptr_t sp;
 
-	__asm__ volatile("mv %0, sp" : "=r"(sp)); //Write the assembly inline at place of the function. Saves sp to a variable. 
-
-	return sp;
-}
-*/
 static __attribute__((no_instrument_function))
-void send_frame_event(uint64_t type, void *function, void *caller, uintptr_t sp)
+void send_frame_event(uint64_t type, uintptr_t canary, uintptr_t stack_frame_high, void* function)
 {
 	s3k_msg_t msg = {0};
 
 	//Do not send anything until main() has installed the socket.
 	
-	if (!hooks_ready)
+	if (!hooks_ready) {
 		return;
+	}
 
 	msg.data[0] = type; //MSG_GUARD_PUSH or MSG_GUARD_POP
-	msg.data[1] = (uintptr_t)function;
-	msg.data[2] = (uintptr_t)caller;
-	msg.data[3] = sp;
+	msg.data[1] = canary;
+	msg.data[2] = stack_frame_high; // Caller is not necessary. So we swap this to canary offset. 
+	msg.data[3] = (uintptr_t)function;
 
 	(void)s3k_sock_sendrecv(MONITOR_SOCK_CAP, &msg);
 }
 
 
 void __attribute__((no_instrument_function))
-__cyg_profile_func_enter_c(void *function, void *caller, uintptr_t caller_sp) //Original function placed in hooks.S, this is a callee inside of that function.
+__cyg_profile_func_enter_c(void *function, void *caller, uintptr_t sp) //Original function placed in hooks.S, this is a callee inside of that function.
 {	
-	//uintptr_t sp = read_sp();
-	//alt_printf("SP TAKEN INSIDE FINSTRUCTION, %X\n", sp);
-	//void* frame_address = __builtin_frame_address(0); //1 for one layer earlier which should capture the correct frame top. 
-	//send_frame_event(FRAME_TOP, frame_address, 0, 0);
-	send_frame_event(MSG_GUARD_PUSH, function, caller, caller_sp);
+	frame_size_t* fs;
+	uintptr_t stack_frame_high;
+	uintptr_t canary;
+	fs = frame_size_find((uintptr_t)function);
+	if (fs == NULL) { // In case of not finding. 
+		return;
+	}
+	stack_frame_high = sp + fs->frame_size; // Make sure to check that these are used correctly in guards. 
+	canary = sp + fs->canary_offset;
+	if (fs->canary_offset == NO_CANARY) { // Should we only protect the functions with canaries that have buffers?
+		canary = NO_CANARY;
+	}
+	
+	send_frame_event(MSG_GUARD_PUSH, canary, stack_frame_high, function);
 }
 
 void __attribute__((no_instrument_function))
-__cyg_profile_func_exit(void *function, void *caller)
+__cyg_profile_func_exit_c(void *function, void *caller, uintptr_t sp)
 {	
-	//uintptr_t sp = read_sp();
-	send_frame_event(MSG_GUARD_POP, function, caller, 0);
+	if (frame_size_find((uintptr_t)function) == NULL) {
+		return;
+	}
+	frame_size_t* fs = frame_size_find((uintptr_t)function);
+	if (fs == NULL) { // In case of not finding. 
+		return;
+	}
+	uintptr_t stack_frame_high = sp + fs->frame_size;
+	
+	send_frame_event(MSG_GUARD_POP, 0, stack_frame_high, function);
 }
 
 __attribute__((no_instrument_function))

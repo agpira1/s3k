@@ -4,6 +4,7 @@
 #include "../frame_msg.h"
 #include "../interface.h"
 
+
 /* Granted by app0, already loaded into the PMP unit. */
 #define MEM_CAP 0
 #define UART_CAP 1
@@ -22,22 +23,24 @@ static s3k_msg_t frame_handler(s3k_reply_t request, void *ctx)
 	(void)ctx;
 
 	uint64_t type = request.data[0];
-	uint64_t function = request.data[1];
-	uint64_t caller = request.data[2];
-	uint64_t sp = request.data[3];
+	uint64_t canary = request.data[1];
+	uint64_t frame = request.data[2];
+	uint64_t function = request.data[3];
 
 	if (type == MSG_GUARD_PUSH) {
 		alt_printf(
-			"ENTER: function=%X caller=%X sp=%X\n",
-			function,
-			caller,
-			sp);
+			"ENTER: canary=%X frame=%X function=%X\n",
+			canary,
+			frame,
+			function);
+		guard_push(canary, frame, function);
 	} else if (type == MSG_GUARD_POP) {
 		alt_printf(
-			"EXIT:  function=%X caller=%X sp=%X\n",
-			function,
-			caller,
-			sp);
+			"EXIT:  canary=%X frame=%X function=%X\n",
+			canary,
+			frame,
+			function);
+		guard_pop(frame);
 	} /*else if (type == FRAME_TOP) {
 		alt_printf(
 			"preENTER:  frame_top=%X caller=%X sp=%X\n",

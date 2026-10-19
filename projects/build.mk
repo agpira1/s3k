@@ -35,7 +35,7 @@ LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -L${COMMON_LIB} -ls3k -laltc -lplat \
 
 ifeq (${PROGRAM},vuln)
-CFLAGS += -finstrument-functions
+CFLAGS += -finstrument-functions -fno-optimize-sibling-calls
 LDFLAGS += -finstrument-functions
 endif
 
