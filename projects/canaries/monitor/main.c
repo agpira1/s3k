@@ -18,6 +18,7 @@ static bool dispatch(const uint64_t *data)
 	switch (data[0]) {
 	case MSG_GUARD_PUSH:
 		guard_push(data[1], data[2], data[3]);
+		window_invalidate();
 		return true;
 	case MSG_GUARD_POP:
 		guard_pop(data[1]);

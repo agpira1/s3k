@@ -35,7 +35,9 @@ LDFLAGS:=-march=${ARCH} -mabi=${ABI} -mcmodel=${CMODEL} \
 	 -L${COMMON_LIB} -ls3k -laltc -lplat \
 
 ifeq (${PROGRAM},vuln)
-CFLAGS += -finstrument-functions
+# The exit hook must run before the epilogue reads the canary, not as a tail
+# call after it, or the guard is still registered when the canary is read.
+CFLAGS += -finstrument-functions -fno-optimize-sibling-calls
 LDFLAGS += -finstrument-functions
 endif
 

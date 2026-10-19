@@ -3,7 +3,8 @@
 
 /* At VULN_TRAP_PC, installed by the monitor. Returning retries the faulting
  * instruction. */
-__attribute__((section(".trap.text"), interrupt("machine"), used)) void
+__attribute__((section(".trap.text"), interrupt("machine"), used,
+	       no_instrument_function)) void
 trap_handler(void)
 {
 	s3k_msg_t msg = {
