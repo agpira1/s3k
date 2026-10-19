@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My part of the canaries project</title>
+<style>
+  body { margin: 0; background: #fff; color: #16202a; font: 17px/1.5 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  p.by { margin: 0 0 28px; color: #4c5866; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #d5dbe1; vertical-align: top; }
+  th { font-size: 14px; color: #4c5866; font-weight: 600; }
+  td:first-child { width: 2em; color: #4c5866; }
+  td ul { margin: 0; padding-left: 18px; }
+  td li + li { margin-top: 3px; }
+  code { font-family: Consolas, ui-monospace, monospace; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>My part of the canaries project</h1>
+  <p class="by">Oliver Marcusson</p>
+  <table>
+    <thead><tr><th></th><th>Feature</th><th>File</th><th>Key parts</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Memory layout: where each process lives, trap handler at a fixed address, stack left unmapped</td>
+        <td><code>default.ld</code>, <code>app0.ld</code>, <code>monitor.ld</code>, <code>vuln.ld</code></td>
+        <td><ul>
+          <li><code>.trap</code> section at <code>0x80037000</code>, holding <code>.trap.text</code></li>
+          <li><code>__stack_size = 0</code>: the stack isn't part of the image</li>
+          <li><code>__stack_pointer = 0x80040000</code>: the top of the unmapped stack</li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Helper library over the kernel API, plus canary seeding</td>
+        <td><code>utils.c</code>, <code>utils.h</code></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Vulnerable program with a buffer overflow</td>
+        <td><code>vuln/main.c</code></td>
+        <td><ul>
+          <li><code>greet</code>: reads into <code>char name[64]</code> with <code>alt_gets</code>, which has no bounds check</li>
+          <li><code>win</code>: the target the exploit jumps to</li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Exploit that overwrites the return address</td>
+        <td><code>exploiting/exploit.py</code></td>
+        <td><ul>
+          <li><code>find_saved_ra_offset</code>: reads the <code>ra</code> offset from <code>greet</code>'s prologue</li>
+          <li><code>find_return_site</code>: the return address into <code>main</code></li>
+          <li><code>build_payload</code>, <code>check_payload</code>: build the payload and reject bad bytes</li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Boot: gives the monitor and vuln memory, time and a socket, and gives the monitor control over vuln</td>
+        <td><code>app0/main.c</code></td>
+        <td><ul>
+          <li>Grants made in increasing address order: monitor first, then vuln</li>
+          <li>Socket pair on <code>GUARD_CHAN</code> with <code>S3K_IPC_NOYIELD</code></li>
+          <li>Memory cap over vuln's stack given to the monitor (<code>MON_CAP_STACK_MEM</code>)</li>
+          <li><code>s3k_mk_monitor</code> caps <code>[1,2)</code> and <code>[2,3)</code>: start the monitor and let it control vuln</li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Monitor startup and message loop: suspend vuln, handle the message, resume</td>
+        <td><code>monitor/main.c</code></td>
+        <td><ul>
+          <li><code>vuln_start</code>: sets vuln's trap PC and trap SP (<code>TPC</code>, <code>TSP</code>), then resumes it</li>
+          <li><code>dispatch</code>: <code>MSG_GUARD_PUSH</code>, <code>MSG_GUARD_POP</code>, <code>MSG_FAULT</code></li>
+          <li>Loop: <code>s3k_sock_recv</code> → <code>s3k_mon_suspend</code> → <code>dispatch</code> → <code>s3k_mon_resume</code></li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>vuln trap handler: sends each fault to the monitor</td>
+        <td><code>vuln/trap.c</code></td>
+        <td><ul>
+          <li><code>trap_handler</code>: sends <code>ECAUSE</code>, <code>EVAL</code> and <code>EPC</code> with <code>s3k_sock_sendrecv</code></li>
+          <li>The monitor resuming vuln counts as the reply (the call returns <code>S3K_ERR_SUSPENDED</code>)</li>
+          <li><code>no_instrument_function</code>: the frame hooks don't run inside the trap</li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Fault handling: decides whether it's an attack, a crash or a normal stack access</td>
+        <td><code>monitor/faults.c</code></td>
+        <td><ul>
+          <li><code>fault_handle</code>: classifies the fault</li>
+          <li>Attack: a fetch from the stack, or an access that hits a guard (found with <code>guard_find</code>)</li>
+          <li>Stop: a non-access fault, an address outside the stack (<code>in_stack</code>), or the same fault twice</li>
+          <li>Otherwise <code>window_map</code>, then resume</li>
+        </ul></td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

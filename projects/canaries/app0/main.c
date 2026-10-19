@@ -46,7 +46,7 @@ int main(void)
 	util_grant_time(MONITOR_PID, HART0_TIME, MON_TIME_BGN, MON_TIME_END,
 			MON_CAP_TIME);
 
-	// vuln is not resumed here; the monitor sets its trap handler first.
+	// vuln is not resumed here, only initialized.
 	util_grant_memory(VULN_PID, RAM_MEM, VULN_IMAGE_BASE, VULN_IMAGE_SIZE,
 			  S3K_MEM_RWX, VULN_CAP_IMAGE, VULN_SLOT_IMAGE, NULL);
 	util_grant_device(VULN_PID, UART_MEM, UART0_BASE_ADDR, 0x8, S3K_MEM_RW,
@@ -73,7 +73,7 @@ int main(void)
 			 MON_CAP_STACK_MEM);
 
 	// Deriving from MONITOR raises its mark past the child, disabling it
-	// for lower pids. Derive a cap over the monitor first to finish with.
+	// for lower pids, so we make one for the monitor too.
 	s3k_cidx_t mon_mon = util_find_free_cap();
 
 	s3k_cap_derive(MONITOR, mon_mon,
