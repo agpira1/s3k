@@ -47,7 +47,7 @@
 
 /* data[0] of every message; data[1..3] as in the comments */
 #define MSG_GUARD_PUSH 1 /* canary address, frame, function address */
-#define MSG_GUARD_POP 2	 /* frame */
+#define MSG_GUARD_POP 2	 /* 0, frame, function address */
 #define MSG_FAULT 3	 /* ECAUSE, EVAL, EPC */
 
 

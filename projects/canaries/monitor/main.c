@@ -22,7 +22,7 @@ static bool dispatch(const uint64_t *data)
 		new_frame_guard_check();
 		return true;
 	case MSG_GUARD_POP:
-		guard_pop(data[1]);
+		guard_pop(data[2]);
 		return true;
 	case MSG_FAULT:
 		return fault_handle(data[1], data[2], data[3]);

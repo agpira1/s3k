@@ -16,7 +16,7 @@ static bool stop(const char *why, uint64_t ecause, uint64_t eval,
 
 bool fault_handle(uint64_t ecause, uint64_t eval, uint64_t epc)
 {
-	static uint64_t last_eval, last_epc;
+	static uint64_t last_eval, last_epc, faults;
 	const guard_t *g;
 
 	if (ecause != CAUSE_FETCH_ACCESS && ecause != CAUSE_LOAD_ACCESS
@@ -45,5 +45,7 @@ bool fault_handle(uint64_t ecause, uint64_t eval, uint64_t epc)
 
 	if (window_map(eval) != S3K_SUCCESS)
 		return stop("window_map failed", ecause, eval, epc);
+	alt_printf("monitor: fault %D: window for addr:%X pc:%X\n", ++faults,
+		   eval, epc);
 	return true;
 }
