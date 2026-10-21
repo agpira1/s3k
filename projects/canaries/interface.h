@@ -75,8 +75,8 @@ typedef struct {
  */
 
 /* Agaton: guard table and windows */
-void guard_push(uint64_t canary, uint64_t frame, uint64_t fn); //Vill vi ha bool/int för return?
-void guard_pop(uint64_t frame);
+bool guard_push(uint64_t canary, uint64_t frame, uint64_t fn); //Vill vi ha bool/int för return?
+bool guard_pop(uint64_t frame);
 guard_t *guard_find(uint64_t addr); /* NULL if addr is not a guard */
 s3k_err_t window_map(uint64_t addr);
 
