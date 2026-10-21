@@ -5,7 +5,7 @@
 #include "windows.h"
 
 
-static frame_t frames[MAX_FRAME_DEPTH];
+static uintptr_t frames[MAX_FRAME_DEPTH];
 
 static guard_t guards[MAX_GUARDS]; // Dont need to populate my own. Only save the guards for check if not allowed. 
 
@@ -13,19 +13,15 @@ static uint64_t frame_count; //0 by default as static.
 
 void guard_push(uintptr_t canary, uintptr_t frame, uintptr_t function) { //Address of the canary, address of the frame_high, address of the called function.
 	
-	frame_t* f; // Frame to be saved in frames. 
 	guard_t* canary_guard; // Canary guard to be saved in guards.
 	guard_t* return_guard; // Return gurad to be saved in guards.
 
 	if (frame_count >= MAX_FRAME_DEPTH) {
 		alt_puts("Guard_push: Max frame depth reached. No guard frame recorded!");
-		//return 1;
+		return;
 	}
 
-	f = &frames[frame_count]; //F = object at frames[frame_count]
-	f->frame = frame;
-	f->canary = canary;
-	f->fn = function;
+	frames[frame_count] = frame; //F = object at frames[frame_count]
 
 	canary_guard = &guards[frame_count*2];
 	canary_guard->bgn = canary;
@@ -43,13 +39,14 @@ void guard_push(uintptr_t canary, uintptr_t frame, uintptr_t function) { //Addre
 	return_guard->kind = GUARD_RETURN;
 
 	frame_count++;
-
+	/*
 	s3k_err_t err;
 	err = new_frame_guard_check();
 	if (err != S3K_SUCCESS) {
-		alt_printf("Failed to remove memory window containing a guard. Process suspended; error %D", err);
+		alt_printf("Failed to remove memory window containing a guard. Process suspended; error %D", (uint64_t)err);
 		s3k_err_t err = s3k_mon_suspend(MON_CAP_MONITOR, VULN_PID);
 	}
+	*/
 	alt_printf( //Debug
 		"PUSH fn=%X frame=%X canary=%X resulting_depth=%D\n",
 		function,
@@ -61,27 +58,28 @@ void guard_push(uintptr_t canary, uintptr_t frame, uintptr_t function) { //Addre
 
 
 void guard_pop(uintptr_t frame) {
-	frame_t* top;
 
-	if (frame_count <= 0) {
+	if (frame_count == 0) {
 		alt_puts("Guard_pop: No frame to pop. No guard frame removed!");
+		return;
 	}
 
 	// The popped frame should always be the furthest up. 
-	top = &frames[frame_count-1];
-	if (top->frame != frame) {
+	uintptr_t top = frames[frame_count-1];
+	if (top != frame) {
 		alt_puts("Guard_pop: Wrong frame on top. No guard frame removed!");
+		return;
 	}
 	alt_printf( //Debug
 		"POP fn=%X frame=%X resulting_depth=%D\n",
-		top->fn,
-		top->frame,
+		(uint64_t)guards[index * 2].fn,
+        (uint64_t)top,
 		(uint64_t)frame_count-1);
 
 	frame_count--; //We overwrite the contents later if we reiterate so we don't have to zero the values and the "pop" is only to remove the value. We don't need to return it. 
 };
 
-guard_t* guard_find(uint64_t addr) {
+guard_t* guard_find(uintptr_t addr) {
 	uint64_t i;
 	uint64_t guard_count = frame_count * 2;
 
