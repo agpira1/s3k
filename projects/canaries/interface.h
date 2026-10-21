@@ -75,11 +75,10 @@ typedef struct {
  */
 
 /* Agaton: guard table and windows */
-void guard_push(uint64_t canary, uint64_t frame, uint64_t fn);
+void guard_push(uint64_t canary, uint64_t frame, uint64_t fn); //Vill vi ha bool/int för return?
 void guard_pop(uint64_t frame);
 guard_t *guard_find(uint64_t addr); /* NULL if addr is not a guard */
 s3k_err_t window_map(uint64_t addr);
-void window_invalidate(void); /* evict windows that now cover a guard */
 
 /* Oliver: fault path. Returns true if vuln should be resumed. */
 bool fault_handle(uint64_t ecause, uint64_t eval, uint64_t epc);

@@ -20,6 +20,11 @@ __attribute__((noinline)) void greet(void) // For stack_usage.c the functions ne
 	alt_printf("Hello, %s!\n", name);
 }
 
+__attribute__((noinline)) void test2(void)
+{
+	alt_printf("Hello");
+}
+
 __attribute__((noinline)) void test(void)
 {
 	char name[64];
@@ -27,7 +32,11 @@ __attribute__((noinline)) void test(void)
 	alt_puts("What is your name?");
 	alt_gets(name);
 	alt_printf("Hello, %s!\n", name);
+	greet();
+	test2();
 }
+
+
 
 int main(void)
 {
